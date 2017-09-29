@@ -26,13 +26,10 @@ public class MethodVisitor extends ASTVisitor {
 	}
 	
 	public boolean visit(MethodDeclaration node) {
-		if (!this.testClass) {
-			String name = node.getName().getIdentifier();
-			Method method = new Method(name);
-			method.setDateDeclared(this.date);
-			this.results.putIfAbsent(method.getName(), method);
-		}
-		System.out.println(node.getName() + " " + this.date);
+		String name = node.getName().getIdentifier();
+		Method method = new Method(name);
+		method.setDateDeclared(this.date);
+		this.results.putIfAbsent(method.getName(), method);
 		return super.visit(node);
 	}
 	
@@ -40,17 +37,15 @@ public class MethodVisitor extends ASTVisitor {
 		String name = node.getName().getIdentifier();
 		if (this.results.containsKey(name)) {
 			Method method = this.results.get(name);
-			method.incrementCallCount();
-			if (this.testClass && !name.toLowerCase().contains("assert")) {
-				method.incrementTestCallCount();
+			if (this.testClass) {
 				if (method.getDateTestInvoked() == null) {
 					method.setDateTestInvoked(this.date);
+					this.results.put(name, method);
 				}
 			}
 		} else {
 			Method method = new Method(name);
-			method.incrementCallCount();
-			if (this.testClass && !name.toLowerCase().contains("assert")) {
+			if (this.testClass) {
 				method.setDateTestInvoked(this.date);
 			}
 			this.results.put(name, method);

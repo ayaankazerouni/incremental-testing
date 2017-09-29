@@ -7,8 +7,6 @@ public class Method {
 	private Date dateDeclared;
 	private Date dateTestInvoked;
 	private String name;
-	private int testCallCount;
-	private int callCount;
 	
 	public Method(String name) {
 		this.name = name;
@@ -32,22 +30,6 @@ public class Method {
 
 	public String getName() {
 		return name;
-	}
-
-	public int getTestCallCount() {
-		return testCallCount;
-	}
-
-	public void incrementTestCallCount() {
-		this.testCallCount++;
-	}
-	
-	public int getCallCount() {
-		return callCount;
-	}
-	
-	public void incrementCallCount() {
-		this.callCount++;
 	}
 	
 	// TODO: Reliable hashing function for methods

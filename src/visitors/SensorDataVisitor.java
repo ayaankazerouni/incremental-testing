@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.repodriller.domain.Commit;
 import org.repodriller.domain.Modification;
@@ -27,7 +26,7 @@ public class SensorDataVisitor implements CommitVisitor {
 		Date commitTime = commit.getDate().getTime();
 		for (Modification m : commit.getModifications()) {
 			if (m.fileNameEndsWith(".java")) {
-				ASTVisitor methodVisitor = null;
+				MethodVisitor methodVisitor = null;
 				if (m.getFileName().toLowerCase().contains("test")) {
 					methodVisitor = new MethodVisitor(commitTime, this.visitedMethods, true);
 				} else {
@@ -37,22 +36,31 @@ public class SensorDataVisitor implements CommitVisitor {
 				parser.setSource(m.getSourceCode().toCharArray());
 				CompilationUnit result = (CompilationUnit) parser.createAST(null);
 				result.accept(methodVisitor);
+				
+				this.visitedMethods = methodVisitor.getResults();
 			}
 		}
 	}
 	
 	@Override
 	public void finalize(SCMRepository repo, PersistenceMechanism writer) {
-		for (Entry<String, Method> entry : this.visitedMethods.entrySet()) {
-			Method method = entry.getValue();
-			writer.write(
-				entry.getKey(),
-				method.getDateDeclared(),
-				method.getDateTestInvoked(),
-				method.getTestCallCount(),
-				method.getCallCount()
-			);
-		}
+		this.visitedMethods.entrySet().stream()
+			.filter(e -> this.filter(e))
+			.sorted((e1, e2) -> e1.getValue().getDateDeclared().compareTo(e2.getValue().getDateDeclared()))
+			.forEach(e -> {
+				Method m = e.getValue();
+				writer.write(
+						e.getKey(),
+						m.getDateDeclared(),
+						m.getDateTestInvoked()
+				);
+			});
 		CommitVisitor.super.finalize(repo, writer);
+	}
+	
+	private boolean filter(Entry<String, Method> entry) {
+		Method m = entry.getValue();
+		return m.getDateDeclared() != null &&
+				!m.getName().toLowerCase().contains("test");
 	}
 }
