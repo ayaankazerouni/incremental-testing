@@ -1,6 +1,6 @@
 package visitors;
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.Map;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -12,10 +12,10 @@ import models.Method;
 public class MethodVisitor extends ASTVisitor {
 	
 	private Map<String, Method> results;
-	private Date date;
+	private Calendar date;
 	private boolean testClass;
 	
-	public MethodVisitor(Date date, Map<String, Method> visitedMethods, boolean testClass) {
+	public MethodVisitor(Calendar date, Map<String, Method> visitedMethods, boolean testClass) {
 		this.results = visitedMethods;
 		this.date = date;
 		this.testClass = testClass;

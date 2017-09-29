@@ -1,7 +1,7 @@
 package visitors;
 
+import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,7 +23,7 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 	
 	@Override
 	public void process(SCMRepository repo, Commit commit, PersistenceMechanism writer) {
-		Date commitTime = commit.getDate().getTime();
+		Calendar commitTime = commit.getDate();
 		for (Modification m : commit.getModifications()) {
 			if (m.fileNameEndsWith(".java")) {
 				MethodVisitor methodVisitor = null;
@@ -48,12 +48,12 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 				!m.getName().toLowerCase().contains("test");
 	}
 	
-	public Map<String, Method> getVisitedMethods() {
-		return this.visitedMethods;
+	public Map<String, Method> getAndResetVisited() {
+		Map<String, Method> toReturn = new HashMap<String, Method>(this.visitedMethods);
+		this.visitedMethods = new HashMap<String, Method>();
+		return toReturn;
 	}
 	
 	@Override
-	public void finalize(SCMRepository repo, PersistenceMechanism writer) {
-		CommitVisitor.super.finalize(repo, writer);
-	}
+	public abstract void finalize(SCMRepository repo, PersistenceMechanism writer);
 }

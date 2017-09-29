@@ -1,5 +1,6 @@
 package visitors;
 
+import java.util.Date;
 import java.util.Map;
 
 import org.repodriller.persistence.PersistenceMechanism;
@@ -11,18 +12,23 @@ public class SingleRepoVisitor extends SensorDataVisitor {
 	
 	@Override
 	public void finalize(SCMRepository repo, PersistenceMechanism writer) {
-		Map<String, Method> visitedMethods = super.getVisitedMethods();
+		Map<String, Method> visitedMethods = super.getAndResetVisited();
+		writer.write(visitedMethods.size());
 		visitedMethods.entrySet().stream()
 			.filter(e -> super.methodFilter(e))
 			.sorted((e1, e2) -> e1.getValue().getDateDeclared().compareTo(e2.getValue().getDateDeclared()))
 			.forEach(e -> {
 				Method m = e.getValue();
+				Date declared = m.getDateDeclared().getTime();
+				Date invoked = null;
+				if (m.getDateTestInvoked() != null) {
+					invoked = m.getDateTestInvoked().getTime();
+				}
 				writer.write(
-						e.getKey(),
-						m.getDateDeclared(),
-						m.getDateTestInvoked()
+						m.getName(),
+						declared,
+						invoked
 				);
 			});
-		super.finalize(repo, writer);
 	}
 }

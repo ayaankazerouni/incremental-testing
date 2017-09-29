@@ -10,7 +10,7 @@ import org.repodriller.filter.range.Commits;
 import org.repodriller.persistence.csv.CSVFile;
 import org.repodriller.scm.GitRepository;
 
-import visitors.SingleRepoVisitor;
+import visitors.AggregateRepoVisitor;
 
 public class AggregateRepoStudy implements Study {
 	private String infile;
@@ -23,11 +23,12 @@ public class AggregateRepoStudy implements Study {
 	
 	@Override
 	public void execute() {
-		SingleRepoVisitor visitor = new SingleRepoVisitor();
+		AggregateRepoVisitor visitor = new AggregateRepoVisitor();
 		
 		new RepositoryMining()
-			.in(GitRepository.singleProject(this.infile))
+			.in(GitRepository.allProjectsIn(this.infile))
 			.through(Commits.all())
+			.withThreads(3)
 			.filters(
 				new OnlyModificationsWithFileTypes(Arrays.asList(".java")),
 				new OnlyNoMerge()

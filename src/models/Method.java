@@ -1,36 +1,34 @@
 package models;
 
-import java.util.Date;
+import java.util.Calendar;
 
 public class Method {
 
-	private Date dateDeclared;
-	private Date dateTestInvoked;
+	private Calendar dateDeclared;
+	private Calendar dateTestInvoked;
 	private String name;
 	
 	public Method(String name) {
 		this.name = name;
 	}
 
-	public Date getDateTestInvoked() {
+	public Calendar getDateTestInvoked() {
 		return this.dateTestInvoked;
 	}
 
-	public void setDateTestInvoked(Date dateTestInvoked) {
+	public void setDateTestInvoked(Calendar dateTestInvoked) {
 		this.dateTestInvoked = dateTestInvoked;
 	}
 
-	public Date getDateDeclared() {
+	public Calendar getDateDeclared() {
 		return this.dateDeclared;
 	}
 	
-	public void setDateDeclared(Date dateDeclared) {
+	public void setDateDeclared(Calendar dateDeclared) {
 		this.dateDeclared = dateDeclared;
 	}
 
 	public String getName() {
 		return name;
 	}
-	
-	// TODO: Reliable hashing function for methods
 }
