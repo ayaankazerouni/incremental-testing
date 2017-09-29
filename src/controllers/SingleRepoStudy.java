@@ -2,7 +2,6 @@ package controllers;
 
 import java.util.Arrays;
 
-import org.repodriller.RepoDriller;
 import org.repodriller.RepositoryMining;
 import org.repodriller.Study;
 import org.repodriller.filter.commit.OnlyModificationsWithFileTypes;
@@ -11,26 +10,30 @@ import org.repodriller.filter.range.Commits;
 import org.repodriller.persistence.csv.CSVFile;
 import org.repodriller.scm.GitRepository;
 
-import visitors.SensorDataVisitor;
+import visitors.SingleRepoVisitor;
 
-public class SensorDataStudy implements Study {
+public class SingleRepoStudy implements Study {
 	
-	public static void main(String[] args) { 
-		new RepoDriller().start(new SensorDataStudy());
+	private String infile;
+	private String outfile;
+	
+	public SingleRepoStudy(String infile, String outfile) {
+		this.infile = infile;
+		this.outfile = outfile;
 	}
 	
 	@Override
 	public void execute() {
-		SensorDataVisitor visitor = new SensorDataVisitor();
+		SingleRepoVisitor visitor = new SingleRepoVisitor();
 		
 		new RepositoryMining()
-			.in(GitRepository.singleProject("/home/ayaan/Developer/repos/18779_P2"))
+			.in(GitRepository.singleProject(this.infile))
 			.through(Commits.all())
 			.filters(
 				new OnlyModificationsWithFileTypes(Arrays.asList(".java")),
 				new OnlyNoMerge()
 			)
-			.process(visitor, new CSVFile("/tmp/rd.csv"))
+			.process(visitor, new CSVFile(this.outfile))
 			.mine();
 	}
 }

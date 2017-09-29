@@ -17,9 +17,9 @@ import org.repodriller.scm.SCMRepository;
 
 import models.Method;
 
-public class SensorDataVisitor implements CommitVisitor {
-	
-	private Map<String, Method> visitedMethods = Collections.synchronizedMap(new HashMap<String, Method>());
+public abstract class SensorDataVisitor implements CommitVisitor {
+
+private Map<String, Method> visitedMethods = Collections.synchronizedMap(new HashMap<String, Method>());
 	
 	@Override
 	public void process(SCMRepository repo, Commit commit, PersistenceMechanism writer) {
@@ -42,25 +42,18 @@ public class SensorDataVisitor implements CommitVisitor {
 		}
 	}
 	
-	@Override
-	public void finalize(SCMRepository repo, PersistenceMechanism writer) {
-		this.visitedMethods.entrySet().stream()
-			.filter(e -> this.filter(e))
-			.sorted((e1, e2) -> e1.getValue().getDateDeclared().compareTo(e2.getValue().getDateDeclared()))
-			.forEach(e -> {
-				Method m = e.getValue();
-				writer.write(
-						e.getKey(),
-						m.getDateDeclared(),
-						m.getDateTestInvoked()
-				);
-			});
-		CommitVisitor.super.finalize(repo, writer);
-	}
-	
-	private boolean filter(Entry<String, Method> entry) {
+	public boolean methodFilter(Entry<String, Method> entry) {
 		Method m = entry.getValue();
 		return m.getDateDeclared() != null &&
 				!m.getName().toLowerCase().contains("test");
+	}
+	
+	public Map<String, Method> getVisitedMethods() {
+		return this.visitedMethods;
+	}
+	
+	@Override
+	public void finalize(SCMRepository repo, PersistenceMechanism writer) {
+		CommitVisitor.super.finalize(repo, writer);
 	}
 }
