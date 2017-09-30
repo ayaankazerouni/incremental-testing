@@ -26,12 +26,8 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 		Calendar commitTime = commit.getDate();
 		for (Modification m : commit.getModifications()) {
 			if (m.fileNameEndsWith(".java")) {
-				MethodVisitor methodVisitor = null;
-				if (m.getFileName().toLowerCase().contains("test")) {
-					methodVisitor = new MethodVisitor(commitTime, this.visitedMethods, true);
-				} else {
-					methodVisitor = new MethodVisitor(commitTime, this.visitedMethods, false);
-				}
+				boolean isTest = m.getFileName().toLowerCase().contains("test");
+				MethodVisitor methodVisitor = new MethodVisitor(commitTime, this.visitedMethods, isTest);
 				ASTParser parser = ASTParser.newParser(AST.JLS8);
 				parser.setSource(m.getSourceCode().toCharArray());
 				CompilationUnit result = (CompilationUnit) parser.createAST(null);
