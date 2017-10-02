@@ -7,9 +7,11 @@ public class Method {
 	private Calendar dateDeclared;
 	private Calendar dateTestInvoked;
 	private String name;
+	private int cyclomaticComplexity;
 	
 	public Method(String name) {
 		this.name = name;
+		this.cyclomaticComplexity = 1;
 	}
 
 	public Calendar getDateTestInvoked() {
@@ -30,5 +32,13 @@ public class Method {
 
 	public String getName() {
 		return name;
+	}
+	
+	public int getCyclomaticComplexity() {
+		return this.cyclomaticComplexity;
+	}
+	
+	public void incrementCyclomaticComplexity() {
+		this.cyclomaticComplexity++;
 	}
 }

@@ -27,9 +27,17 @@ public class MethodVisitor extends ASTVisitor {
 	
 	public boolean visit(MethodDeclaration node) {
 		String name = node.getName().getIdentifier();
-		Method method = new Method(name);
-		method.setDateDeclared(this.date);
-		this.results.putIfAbsent(method.getName(), method);
+		if (this.results.containsKey(name)) {
+			Method method = this.results.get(name);
+			if (method.getDateDeclared() == null) {
+				method.setDateDeclared(this.date);
+				this.results.put(name, method);
+			}
+		} else {
+			Method method = new Method(name);
+			method.setDateDeclared(this.date);
+			this.results.put(method.getName(), method);
+		}
 		return super.visit(node);
 	}
 	
