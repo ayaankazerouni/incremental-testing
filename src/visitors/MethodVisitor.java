@@ -7,6 +7,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
+import helpers.ASTHelper;
 import models.Method;
 
 public class MethodVisitor extends ASTVisitor {
@@ -26,33 +27,35 @@ public class MethodVisitor extends ASTVisitor {
 	}
 	
 	public boolean visit(MethodDeclaration node) {
+		String identifier = ASTHelper.getUniqueMethodIdentifier(node.resolveBinding());
 		String name = node.getName().getIdentifier();
-		if (this.results.containsKey(name)) {
-			Method method = this.results.get(name);
+		if (this.results.containsKey(identifier)) {
+			Method method = this.results.get(identifier);
 			if (method.getDateDeclared() == null) {
 				method.setDateDeclared(this.date);
-				this.results.put(name, method);
+				this.results.put(identifier, method);
 			}
 		} else {
-			Method method = new Method(name);
+			Method method = new Method(name, identifier);
 			method.setDateDeclared(this.date);
-			this.results.put(method.getName(), method);
+			this.results.put(identifier, method);
 		}
 		return super.visit(node);
 	}
 	
 	public boolean visit(MethodInvocation node) {
+		String identifier = ASTHelper.getUniqueMethodIdentifier(node.resolveMethodBinding());
 		String name = node.getName().getIdentifier();
-		if (this.results.containsKey(name)) {
-			Method method = this.results.get(name);
+		if (this.results.containsKey(identifier)) {
+			Method method = this.results.get(identifier);
 			if (this.testClass) {
 				if (method.getDateTestInvoked() == null) {
 					method.setDateTestInvoked(this.date);
-					this.results.put(name, method);
+					this.results.put(identifier, method);
 				}
 			}
 		} else {
-			Method method = new Method(name);
+			Method method = new Method(name, identifier);
 			if (this.testClass) {
 				method.setDateTestInvoked(this.date);
 			}

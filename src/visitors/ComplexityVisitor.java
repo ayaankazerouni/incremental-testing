@@ -9,6 +9,7 @@ import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 
+import helpers.ASTHelper;
 import models.Method;
 
 public class ComplexityVisitor extends ASTVisitor {
@@ -38,15 +39,16 @@ public class ComplexityVisitor extends ASTVisitor {
 	
 	private void visitMcCabeComplex(ASTNode node) {
 		MethodDeclaration enclosingMethod = this.getEnclosingMethod(node);
+		String identifier = ASTHelper.getUniqueMethodIdentifier(enclosingMethod.resolveBinding());
 		String name = enclosingMethod.getName().getIdentifier();
-		if (this.results.containsKey(name)) {
-			Method method = this.results.get(name);
+		if (this.results.containsKey(identifier)) {
+			Method method = this.results.get(identifier);
 			method.incrementCyclomaticComplexity();
-			this.results.put(name, method);
+			this.results.put(identifier, method);
 		} else {
-			Method method = new Method(name);
+			Method method = new Method(name, identifier);
 			method.incrementCyclomaticComplexity();
-			this.results.put(name, method);
+			this.results.put(identifier, method);
 		}
 	}
 	
