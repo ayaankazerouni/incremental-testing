@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.repodriller.domain.Commit;
@@ -15,6 +14,7 @@ import org.repodriller.persistence.PersistenceMechanism;
 import org.repodriller.scm.CommitVisitor;
 import org.repodriller.scm.SCMRepository;
 
+import helpers.ASTHelper;
 import models.Method;
 
 public abstract class SensorDataVisitor implements CommitVisitor {
@@ -24,17 +24,21 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 	@Override
 	public void process(SCMRepository repo, Commit commit, PersistenceMechanism writer) {
 		Calendar commitTime = commit.getDate();
-		for (Modification m : commit.getModifications()) {
-			if (m.fileNameEndsWith(".java")) {
-				boolean isTest = m.getFileName().toLowerCase().contains("test");
-				MethodVisitor methodVisitor = new MethodVisitor(commitTime, this.visitedMethods, isTest);
-				ASTParser parser = ASTParser.newParser(AST.JLS8);
-				parser.setSource(m.getSourceCode().toCharArray());
-				CompilationUnit result = (CompilationUnit) parser.createAST(null);
-				result.accept(methodVisitor);
-				
-				this.visitedMethods = methodVisitor.getResults();
+		try {
+			repo.getScm().checkout(commit.getHash());
+			for (Modification m : commit.getModifications()) {
+				if (m.fileNameEndsWith(".java")) {
+					boolean isTest = m.getFileName().toLowerCase().contains("test");
+					MethodVisitor methodVisitor = new MethodVisitor(commitTime, this.visitedMethods, isTest);
+					ASTParser parser = ASTHelper.createAndSetupParser(m.getFileName(), m.getSourceCode(), repo.getPath() + "/src");
+					CompilationUnit result = (CompilationUnit) parser.createAST(null);
+					result.accept(methodVisitor);
+					
+					this.visitedMethods = methodVisitor.getResults();
+				}
 			}
+		} finally {
+			repo.getScm().reset();
 		}
 	}
 	
