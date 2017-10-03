@@ -7,10 +7,12 @@ public class Method {
 	private Calendar dateDeclared;
 	private Calendar dateTestInvoked;
 	private String name;
+	private String identifier;
 	private int cyclomaticComplexity;
 	
-	public Method(String name) {
+	public Method(String name, String identifier) {
 		this.name = name;
+		this.identifier = identifier;
 		this.cyclomaticComplexity = 1;
 	}
 
@@ -40,5 +42,9 @@ public class Method {
 	
 	public void incrementCyclomaticComplexity() {
 		this.cyclomaticComplexity++;
+	}
+	
+	public String getIdentifier() {
+		return this.identifier;
 	}
 }
