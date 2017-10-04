@@ -27,39 +27,43 @@ public class MethodVisitor extends ASTVisitor {
 	}
 	
 	public boolean visit(MethodDeclaration node) {
-		String identifier = ASTHelper.getUniqueMethodIdentifier(node.resolveBinding());
-		String name = node.getName().getIdentifier();
-		if (this.results.containsKey(identifier)) {
-			Method method = this.results.get(identifier);
-			if (method.getDateDeclared() == null) {
+		if (node.resolveBinding() != null) {
+			String identifier = ASTHelper.getUniqueMethodIdentifier(node.resolveBinding());
+			String name = node.getName().getIdentifier();
+			if (this.results.containsKey(identifier)) {
+				Method method = this.results.get(identifier);
+				if (method.getDateDeclared() == null) {
+					method.setDateDeclared(this.date);
+					this.results.put(identifier, method);
+				}
+			} else {
+				Method method = new Method(name, identifier);
 				method.setDateDeclared(this.date);
 				this.results.put(identifier, method);
 			}
-		} else {
-			Method method = new Method(name, identifier);
-			method.setDateDeclared(this.date);
-			this.results.put(identifier, method);
 		}
 		return super.visit(node);
 	}
 	
 	public boolean visit(MethodInvocation node) {
-		String identifier = ASTHelper.getUniqueMethodIdentifier(node.resolveMethodBinding());
-		String name = node.getName().getIdentifier();
-		if (this.results.containsKey(identifier)) {
-			Method method = this.results.get(identifier);
-			if (this.testClass) {
-				if (method.getDateTestInvoked() == null) {
-					method.setDateTestInvoked(this.date);
-					this.results.put(identifier, method);
+		if (node.resolveMethodBinding() != null) {
+			String identifier = ASTHelper.getUniqueMethodIdentifier(node.resolveMethodBinding());
+			String name = node.getName().getIdentifier();
+			if (this.results.containsKey(identifier)) {
+				Method method = this.results.get(identifier);
+				if (this.testClass) {
+					if (method.getDateTestInvoked() == null) {
+						method.setDateTestInvoked(this.date);
+						this.results.put(identifier, method);
+					}
 				}
+			} else {
+				Method method = new Method(name, identifier);
+				if (this.testClass) {
+					method.setDateTestInvoked(this.date);
+				}
+				this.results.put(name, method);
 			}
-		} else {
-			Method method = new Method(name, identifier);
-			if (this.testClass) {
-				method.setDateTestInvoked(this.date);
-			}
-			this.results.put(name, method);
 		}
 		return super.visit(node);
 	}
