@@ -1,5 +1,6 @@
 package visitors;
 
+import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -13,7 +14,9 @@ public class AggregateRepoVisitor extends SensorDataVisitor {
 	
 	@Override
 	public void finalize(SCMRepository repo, PersistenceMechanism writer) {
-		Set<Method> processedMethods = super.getAndResetVisited().entrySet().stream()
+		Map<String, Method> visitedMethods = super.getAndResetVisited();
+		super.populateComplexities(repo, visitedMethods);
+		Set<Method> processedMethods = visitedMethods.entrySet().stream()
 				.filter(e -> super.methodFilter(e))
 				.map(e -> e.getValue())
 				.collect(Collectors.toSet());
@@ -30,10 +33,14 @@ public class AggregateRepoVisitor extends SensorDataVisitor {
 					return hours;
 				})
 				.average();
+		int totalCyclomaticComplexity = processedMethods.stream()
+				.mapToInt(m -> m.getCyclomaticComplexity())
+				.sum();
 		writer.write(
 			repo.getPath(),
 			processedMethods.size(),
 			methodsNotTested,
+			totalCyclomaticComplexity,
 			averageTimeToTest.getAsDouble()
 		);
 	}

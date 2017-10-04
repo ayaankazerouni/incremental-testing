@@ -12,6 +12,7 @@ import org.repodriller.domain.Commit;
 import org.repodriller.domain.Modification;
 import org.repodriller.persistence.PersistenceMechanism;
 import org.repodriller.scm.CommitVisitor;
+import org.repodriller.scm.RepositoryFile;
 import org.repodriller.scm.SCMRepository;
 
 import helpers.ASTHelper;
@@ -42,16 +43,35 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 		}
 	}
 	
-	public boolean methodFilter(Entry<String, Method> entry) {
+	protected boolean methodFilter(Entry<String, Method> entry) {
 		Method m = entry.getValue();
 		return m.getDateDeclared() != null &&
 				!m.getName().toLowerCase().contains("test");
 	}
 	
-	public Map<String, Method> getAndResetVisited() {
+	protected Map<String, Method> getAndResetVisited() {
 		Map<String, Method> toReturn = new HashMap<String, Method>(this.visitedMethods);
 		this.visitedMethods = new HashMap<String, Method>();
 		return toReturn;
+	}
+	
+	protected void populateComplexities(SCMRepository repo, Map<String, Method> visitedMethods) {
+		try {
+			repo.getScm().checkout(repo.getHeadCommit());
+			
+			for (RepositoryFile file : repo.getScm().files()) {
+				if (!file.fileNameEndsWith(".java")) {
+					continue;
+				}
+
+				ComplexityVisitor visitor = new ComplexityVisitor(visitedMethods);
+				ASTParser parser = ASTHelper.createAndSetupParser(file.getFile().getName(), file.getSourceCode(), repo.getPath() + "/");
+				CompilationUnit result = (CompilationUnit) parser.createAST(null);
+				result.accept(visitor);
+			}
+		} finally {
+			repo.getScm().reset();
+		}
 	}
 	
 	@Override
