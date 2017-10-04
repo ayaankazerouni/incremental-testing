@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.repodriller.RepositoryMining;
 import org.repodriller.Study;
+import org.repodriller.filter.commit.OnlyInBranches;
 import org.repodriller.filter.commit.OnlyModificationsWithFileTypes;
 import org.repodriller.filter.commit.OnlyNoMerge;
 import org.repodriller.filter.range.Commits;
@@ -31,7 +32,8 @@ public class SingleRepoStudy implements Study {
 			.through(Commits.all())
 			.filters(
 				new OnlyModificationsWithFileTypes(Arrays.asList(".java")),
-				new OnlyNoMerge()
+				new OnlyNoMerge(),
+				new OnlyInBranches(Arrays.asList("master"))
 			)
 			.process(visitor, new CSVFile(this.outfile))
 			.mine();
