@@ -1,6 +1,5 @@
 package visitors;
 
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,13 +23,12 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 	
 	@Override
 	public void process(SCMRepository repo, Commit commit, PersistenceMechanism writer) {
-		Calendar commitTime = commit.getDate();
 		try {
 			repo.getScm().checkout(commit.getHash());
 			for (Modification m : commit.getModifications()) {
 				if (m.fileNameEndsWith(".java")) {
 					boolean isTest = m.getFileName().toLowerCase().contains("test");
-					MethodVisitor methodVisitor = new MethodVisitor(commitTime, this.visitedMethods, isTest);
+					MethodVisitor methodVisitor = new MethodVisitor(commit, this.visitedMethods, isTest);
 					ASTParser parser = ASTHelper.createAndSetupParser(m.getFileName(), m.getSourceCode(), repo.getPath() + "/src");
 					CompilationUnit result = (CompilationUnit) parser.createAST(null);
 					result.accept(methodVisitor);
@@ -45,7 +43,7 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 	
 	protected boolean methodFilter(Entry<String, Method> entry) {
 		Method m = entry.getValue();
-		return m.getDateDeclared() != null &&
+		return m.getDeclared() != null &&
 				!m.getName().toLowerCase().contains("test");
 	}
 	

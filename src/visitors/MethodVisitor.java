@@ -1,11 +1,11 @@
 package visitors;
 
-import java.util.Calendar;
 import java.util.Map;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.repodriller.domain.Commit;
 
 import helpers.ASTHelper;
 import models.Method;
@@ -13,12 +13,12 @@ import models.Method;
 public class MethodVisitor extends ASTVisitor {
 	
 	private Map<String, Method> results;
-	private Calendar date;
+	private Commit commit;
 	private boolean testClass;
 	
-	public MethodVisitor(Calendar date, Map<String, Method> visitedMethods, boolean testClass) {
+	public MethodVisitor(Commit commit, Map<String, Method> visitedMethods, boolean testClass) {
 		this.results = visitedMethods;
-		this.date = date;
+		this.commit = commit;
 		this.testClass = testClass;
 	}
 	
@@ -32,13 +32,13 @@ public class MethodVisitor extends ASTVisitor {
 			String name = node.getName().getIdentifier();
 			if (this.results.containsKey(identifier)) {
 				Method method = this.results.get(identifier);
-				if (method.getDateDeclared() == null) {
-					method.setDateDeclared(this.date);
+				if (method.getDeclared() == null) {
+					method.setDeclared(this.commit);
 					this.results.put(identifier, method);
 				}
 			} else {
 				Method method = new Method(name, identifier);
-				method.setDateDeclared(this.date);
+				method.setDeclared(this.commit);
 				this.results.put(identifier, method);
 			}
 		}
@@ -52,15 +52,15 @@ public class MethodVisitor extends ASTVisitor {
 			if (this.results.containsKey(identifier)) {
 				Method method = this.results.get(identifier);
 				if (this.testClass) {
-					if (method.getDateTestInvoked() == null) {
-						method.setDateTestInvoked(this.date);
+					if (method.getTestInvoked() == null) {
+						method.setTestInvoked(this.commit);
 						this.results.put(identifier, method);
 					}
 				}
 			} else {
 				Method method = new Method(name, identifier);
 				if (this.testClass) {
-					method.setDateTestInvoked(this.date);
+					method.setTestInvoked(this.commit);
 				}
 				this.results.put(name, method);
 			}

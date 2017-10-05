@@ -1,11 +1,11 @@
 package models;
 
-import java.util.Calendar;
+import org.repodriller.domain.Commit;
 
 public class Method {
 
-	private Calendar dateDeclared;
-	private Calendar dateTestInvoked;
+	private Commit declared;
+	private Commit testInvoked;
 	private String name;
 	private String identifier;
 	private int cyclomaticComplexity;
@@ -16,20 +16,20 @@ public class Method {
 		this.cyclomaticComplexity = 1;
 	}
 
-	public Calendar getDateTestInvoked() {
-		return this.dateTestInvoked;
+	public Commit getTestInvoked() {
+		return this.testInvoked;
 	}
 
-	public void setDateTestInvoked(Calendar dateTestInvoked) {
-		this.dateTestInvoked = dateTestInvoked;
+	public void setTestInvoked(Commit testInvoked) {
+		this.testInvoked = testInvoked;
 	}
 
-	public Calendar getDateDeclared() {
-		return this.dateDeclared;
+	public Commit getDeclared() {
+		return this.declared;
 	}
 	
-	public void setDateDeclared(Calendar dateDeclared) {
-		this.dateDeclared = dateDeclared;
+	public void setDeclared(Commit declared) {
+		this.declared = declared;
 	}
 
 	public String getName() {

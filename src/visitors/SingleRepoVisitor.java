@@ -15,13 +15,13 @@ public class SingleRepoVisitor extends SensorDataVisitor {
 		super.populateComplexities(repo, visitedMethods);
 		visitedMethods.entrySet().stream()
 			.filter(e -> super.methodFilter(e))
-			.sorted((e1, e2) -> e1.getValue().getDateDeclared().compareTo(e2.getValue().getDateDeclared()))
+			.sorted((e1, e2) -> e1.getValue().getDeclared().getDate().compareTo(e2.getValue().getDeclared().getDate()))
 			.forEach(e -> {
 				Method m = e.getValue();
-				Date declared = m.getDateDeclared().getTime();
+				Date declared = m.getDeclared().getDate().getTime();
 				Date invoked = null;
-				if (m.getDateTestInvoked() != null) {
-					invoked = m.getDateTestInvoked().getTime();
+				if (m.getTestInvoked() != null) {
+					invoked = m.getTestInvoked().getDate().getTime();
 				}
 				writer.write(
 						m.getIdentifier(),

@@ -21,13 +21,13 @@ public class AggregateRepoVisitor extends SensorDataVisitor {
 				.map(e -> e.getValue())
 				.collect(Collectors.toSet());
 		long methodsNotTested = processedMethods.stream()
-				.filter(m -> m.getDateTestInvoked() == null)
+				.filter(m -> m.getTestInvoked() == null)
 				.count();
 		OptionalDouble averageTimeToTest = (OptionalDouble) processedMethods.stream()
-				.filter(m -> m.getDateDeclared() != null && m.getDateTestInvoked() != null)
+				.filter(m -> m.getDeclared() != null && m.getTestInvoked() != null)
 				.mapToDouble(m -> {
-					long declared = m.getDateDeclared().getTimeInMillis() / 1000;
-					long invoked = m.getDateTestInvoked().getTimeInMillis() / 1000;
+					long declared = m.getDeclared().getDate().getTimeInMillis() / 1000;
+					long invoked = m.getTestInvoked().getDate().getTimeInMillis() / 1000;
 					long seconds = invoked - declared;
 					double hours = (seconds / 3600);
 					return hours;
