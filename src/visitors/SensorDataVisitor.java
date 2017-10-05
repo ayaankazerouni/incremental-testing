@@ -26,9 +26,8 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 		try {
 			repo.getScm().checkout(commit.getHash());
 			for (Modification m : commit.getModifications()) {
-				if (m.fileNameEndsWith(".java")) {
-					boolean isTest = m.getFileName().toLowerCase().contains("test");
-					MethodVisitor methodVisitor = new MethodVisitor(commit, this.visitedMethods, isTest);
+				if (m.fileNameEndsWith(".java") && m.getNewPath().contains("src/")) {
+					MethodVisitor methodVisitor = new MethodVisitor(commit, this.visitedMethods, m.getFileName());
 					ASTParser parser = ASTHelper.createAndSetupParser(m.getFileName(), m.getSourceCode(), repo.getPath() + "/src");
 					CompilationUnit result = (CompilationUnit) parser.createAST(null);
 					result.accept(methodVisitor);
@@ -56,11 +55,11 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 	protected void populateComplexities(SCMRepository repo, Map<String, Method> visitedMethods) {
 		repo.getScm().reset();
 		for (RepositoryFile file : repo.getScm().files()) {
-			if (!file.fileNameEndsWith(".java")) {
+			if (!file.fileNameEndsWith(".java") || !file.getFile().getParentFile().getName().equals("src")) {
 				continue;
 			}
 
-			ComplexityVisitor visitor = new ComplexityVisitor(visitedMethods);
+			ComplexityVisitor visitor = new ComplexityVisitor(visitedMethods, file.getFile().getName());
 			ASTParser parser = ASTHelper.createAndSetupParser(file.getFile().getName(), file.getSourceCode(), repo.getPath() + "/");
 			CompilationUnit result = (CompilationUnit) parser.createAST(null);
 			result.accept(visitor);

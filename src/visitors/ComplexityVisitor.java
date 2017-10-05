@@ -93,14 +93,16 @@ public class ComplexityVisitor extends ASTVisitor {
 		IMethodBinding binding = enclosingMethod.resolveBinding();
 		String identifier = ASTHelper.getUniqueMethodIdentifier(binding, this.fileName);
 		String name = enclosingMethod.getName().getIdentifier();
-		if (this.results.containsKey(identifier)) {
-			Method method = this.results.get(identifier);
-			method.incrementCyclomaticComplexity();
-			this.results.put(identifier, method);
-		} else {
-			Method method = new Method(name, identifier);
-			method.incrementCyclomaticComplexity();
-			this.results.put(identifier, method);
+		if (identifier != null) {
+			if (this.results.containsKey(identifier)) {
+				Method method = this.results.get(identifier);
+				method.incrementCyclomaticComplexity();
+				this.results.put(identifier, method);
+			} else {
+				Method method = new Method(name, identifier);
+				method.incrementCyclomaticComplexity();
+				this.results.put(identifier, method);
+			}
 		}
 	}
 
