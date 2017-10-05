@@ -43,7 +43,7 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 	protected boolean methodFilter(Entry<String, Method> entry) {
 		Method m = entry.getValue();
 		return m.getDeclared() != null &&
-				!m.getName().toLowerCase().contains("test");
+				!m.getIdentifier().toLowerCase().contains("test");
 	}
 	
 	protected Map<String, Method> getAndResetVisited() {
