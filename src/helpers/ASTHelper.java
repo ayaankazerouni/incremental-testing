@@ -30,13 +30,15 @@ public class ASTHelper {
 	}
 	
 	public static String getUniqueMethodIdentifier(IMethodBinding binding) {
-		StringBuilder builder = new StringBuilder(binding.getName());
+		String declaringClass = binding.getDeclaringClass().getName();
+		StringBuilder builder = new StringBuilder(declaringClass)
+					.append(binding.getName());
 		if (binding.getParameterTypes().length == 0) {
 			return builder.toString();
 		}
 		
 		for (ITypeBinding current : binding.getParameterTypes()) {
-			builder.append(current.getName());
+			builder.append(current.getName() + ",");
 		}
 		
 		return builder.toString();
