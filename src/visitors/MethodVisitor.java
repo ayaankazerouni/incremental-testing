@@ -51,7 +51,7 @@ public class MethodVisitor extends ASTVisitor {
 	
 	public boolean visit(MethodInvocation node) {
 		if (node.resolveMethodBinding() != null) {
-			String identifier = ASTHelper.getUniqueMethodIdentifier(node.resolveMethodBinding(), this.fileName);
+			String identifier = ASTHelper.getUniqueMethodIdentifier(node.resolveMethodBinding(), null);
 			if (identifier != null) {
 				String name = node.getName().getIdentifier();
 				if (this.results.containsKey(identifier)) {
@@ -67,7 +67,7 @@ public class MethodVisitor extends ASTVisitor {
 					if (this.testClass) {
 						method.setTestInvoked(this.commit);
 					}
-					this.results.put(name, method);
+					this.results.put(identifier, method);
 				}
 			}
 		}
