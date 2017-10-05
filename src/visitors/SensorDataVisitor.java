@@ -38,7 +38,7 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 					this.visitedMethods = methodVisitor.getResults();
 				}
 			}
-		} finally {
+		} catch (Exception e) {
 			repo.getScm().reset();
 		}
 	}
@@ -56,21 +56,16 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 	}
 	
 	protected void populateComplexities(SCMRepository repo, Map<String, Method> visitedMethods) {
-		try {
-			repo.getScm().checkout(repo.getHeadCommit());
-			
-			for (RepositoryFile file : repo.getScm().files()) {
-				if (!file.fileNameEndsWith(".java")) {
-					continue;
-				}
-
-				ComplexityVisitor visitor = new ComplexityVisitor(visitedMethods);
-				ASTParser parser = ASTHelper.createAndSetupParser(file.getFile().getName(), file.getSourceCode(), repo.getPath() + "/");
-				CompilationUnit result = (CompilationUnit) parser.createAST(null);
-				result.accept(visitor);
+		repo.getScm().reset();
+		for (RepositoryFile file : repo.getScm().files()) {
+			if (!file.fileNameEndsWith(".java")) {
+				continue;
 			}
-		} finally {
-			repo.getScm().reset();
+
+			ComplexityVisitor visitor = new ComplexityVisitor(visitedMethods);
+			ASTParser parser = ASTHelper.createAndSetupParser(file.getFile().getName(), file.getSourceCode(), repo.getPath() + "/");
+			CompilationUnit result = (CompilationUnit) parser.createAST(null);
+			result.accept(visitor);
 		}
 	}
 	
