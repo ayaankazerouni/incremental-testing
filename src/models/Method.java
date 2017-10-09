@@ -8,12 +8,14 @@ public class Method {
 	private Commit testInvoked;
 	private String name;
 	private String identifier;
+	private long levenshteinDistance;
 	private int cyclomaticComplexity;
 	
 	public Method(String name, String identifier) {
 		this.name = name;
 		this.identifier = identifier;
 		this.cyclomaticComplexity = 1;
+		this.levenshteinDistance = -1;
 	}
 
 	public Commit getTestInvoked() {
@@ -46,5 +48,13 @@ public class Method {
 	
 	public String getIdentifier() {
 		return this.identifier;
+	}
+	
+	public long getLevenshteinDistance() {
+		return this.levenshteinDistance;
+	}
+	
+	public void setLevenshtein(long distance) {
+		this.levenshteinDistance = distance;
 	}
 }
