@@ -15,7 +15,8 @@ public class AggregateRepoVisitor extends SensorDataVisitor {
 	@Override
 	public void finalize(SCMRepository repo, PersistenceMechanism writer) {
 		Map<String, Method> visitedMethods = super.getAndResetVisited();
-		super.populateComplexities(repo, visitedMethods);
+		super.calculateComplexities(repo, visitedMethods);
+		super.calculateEffort(repo, visitedMethods);
 		Set<Method> processedMethods = visitedMethods.entrySet().stream()
 				.filter(e -> super.methodFilter(e))
 				.map(e -> e.getValue())
@@ -24,7 +25,7 @@ public class AggregateRepoVisitor extends SensorDataVisitor {
 				.filter(m -> m.getTestInvoked() == null)
 				.count();
 		OptionalDouble averageTimeToTest = (OptionalDouble) processedMethods.stream()
-				.filter(m -> m.getDeclared() != null && m.getTestInvoked() != null)
+				.filter(m -> m.getTestInvoked() != null)
 				.mapToDouble(m -> {
 					long declared = m.getDeclared().getDate().getTimeInMillis() / 1000;
 					long invoked = m.getTestInvoked().getDate().getTimeInMillis() / 1000;
@@ -36,12 +37,17 @@ public class AggregateRepoVisitor extends SensorDataVisitor {
 		int totalCyclomaticComplexity = processedMethods.stream()
 				.mapToInt(m -> m.getCyclomaticComplexity())
 				.sum();
+		OptionalDouble averageLevenshtein = (OptionalDouble) processedMethods.stream()
+				.filter(m -> m.getTestInvoked() != null)
+				.mapToDouble(m -> m.getLevenshteinDistance())
+				.average();
 		writer.write(
 			repo.getPath(),
 			processedMethods.size(),
 			methodsNotTested,
 			totalCyclomaticComplexity,
-			averageTimeToTest.getAsDouble()
+			averageTimeToTest.getAsDouble(),
+			averageLevenshtein.getAsDouble()
 		);
 	}
 }
