@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -82,11 +83,15 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 			} else {
 				modifications = repo.getScm().getDiffBetweenCommits(testInvoked.getHash(), declared.getHash());
 			}
-			method.setFilesChanged(modifications.size());
-			modifications.stream().forEach(m -> {
-				method.setAdditions(method.getAdditions() + m.getAdded());
-				method.setRemovals(method.getRemovals() + m.getRemoved());
-			});
+			List<Modification> javaMods = modifications.stream()
+					.filter(mod -> mod.fileNameEndsWith(".java"))
+					.collect(Collectors.toList());
+			method.setFilesChanged(javaMods.size());
+			javaMods.stream()
+				.forEach(m -> {
+					method.setAdditions(method.getAdditions() + m.getAdded());
+					method.setRemovals(method.getRemovals() + m.getRemoved());
+				});
 		}
 	}
 	
