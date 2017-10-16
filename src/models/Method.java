@@ -8,14 +8,15 @@ public class Method {
 	private Commit testInvoked;
 	private String name;
 	private String identifier;
-	private long levenshteinDistance;
+	private int additions;
+	private int removals;
+	private int filesChanged;
 	private int cyclomaticComplexity;
 	
 	public Method(String name, String identifier) {
 		this.name = name;
 		this.identifier = identifier;
 		this.cyclomaticComplexity = 1;
-		this.levenshteinDistance = -1;
 	}
 
 	public Commit getTestInvoked() {
@@ -50,11 +51,27 @@ public class Method {
 		return this.identifier;
 	}
 	
-	public long getLevenshteinDistance() {
-		return this.levenshteinDistance;
+	public int getAdditions() {
+		return this.additions;
 	}
 	
-	public void setLevenshtein(long distance) {
-		this.levenshteinDistance = distance;
+	public void setAdditions(int additions) {
+		this.additions = additions;
+	}
+
+	public int getRemovals() {
+		return this.removals;
+	}
+
+	public void setRemovals(int removals) {
+		this.removals = removals;
+	}
+
+	public int getFilesChanged() {
+		return this.filesChanged;
+	}
+
+	public void setFilesChanged(int filesChanged) {
+		this.filesChanged = filesChanged;
 	}
 }

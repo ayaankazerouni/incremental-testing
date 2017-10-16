@@ -37,9 +37,17 @@ public class AggregateRepoVisitor extends SensorDataVisitor {
 		int totalCyclomaticComplexity = processedMethods.stream()
 				.mapToInt(m -> m.getCyclomaticComplexity())
 				.sum();
-		OptionalDouble averageLevenshtein = (OptionalDouble) processedMethods.stream()
+		OptionalDouble averageAdded = (OptionalDouble) processedMethods.stream()
 				.filter(m -> m.getTestInvoked() != null)
-				.mapToDouble(m -> m.getLevenshteinDistance())
+				.mapToDouble(m -> m.getAdditions())
+				.average();
+		OptionalDouble averageRemoved = (OptionalDouble) processedMethods.stream()
+				.filter(m -> m.getTestInvoked() != null)
+				.mapToDouble(m -> m.getRemovals())
+				.average();
+		OptionalDouble averageFilesChanged = (OptionalDouble) processedMethods.stream()
+				.filter(m -> m.getTestInvoked() != null)
+				.mapToDouble(m -> m.getFilesChanged())
 				.average();
 		writer.write(
 			repo.getPath(),
@@ -47,7 +55,9 @@ public class AggregateRepoVisitor extends SensorDataVisitor {
 			methodsNotTested,
 			totalCyclomaticComplexity,
 			averageTimeToTest.getAsDouble(),
-			averageLevenshtein.getAsDouble()
+			averageAdded.getAsDouble(),
+			averageRemoved.getAsDouble(),
+			averageFilesChanged.getAsDouble()
 		);
 	}
 }

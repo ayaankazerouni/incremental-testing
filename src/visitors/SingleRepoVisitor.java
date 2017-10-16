@@ -27,7 +27,7 @@ public class SingleRepoVisitor extends SensorDataVisitor {
 					invoked = m.getTestInvoked().getDate().getTime();
 					invokedHash = m.getTestInvoked().getHash();
 				}
-				long levenshtein = m.getLevenshteinDistance();
+				int filesChanged = m.getFilesChanged();
 				writer.write(
 						m.getIdentifier(),
 						m.getName(),
@@ -36,7 +36,9 @@ public class SingleRepoVisitor extends SensorDataVisitor {
 						declaredHash,
 						invokedHash,
 						m.getCyclomaticComplexity(),
-						levenshtein == -1 ? null : levenshtein
+						filesChanged > 0 ? m.getAdditions() : null,
+						filesChanged > 0 ? m.getRemovals() : null,
+						filesChanged > 0 ? m.getFilesChanged() : null
 				);
 			});
 	}
