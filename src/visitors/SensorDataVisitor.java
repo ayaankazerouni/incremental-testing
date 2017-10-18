@@ -19,7 +19,7 @@ import helpers.ASTHelper;
 import models.Method;
 
 public class SensorDataVisitor implements CommitVisitor {
-
+	
 	private Map<String, Method> visitedMethods;
 	
 	@Override
@@ -27,6 +27,11 @@ public class SensorDataVisitor implements CommitVisitor {
 		this.visitedMethods = Collections.synchronizedMap(new HashMap<String, Method>());
 	}
 	
+	/**
+	 * Checkout each commit and build an AST for the entire project,
+	 * then calculate method metrics and put them in a persistent
+	 * data structure.
+	 */
 	@Override
 	public void process(SCMRepository repo, Commit commit, PersistenceMechanism writer) {
 		try {
@@ -46,7 +51,7 @@ public class SensorDataVisitor implements CommitVisitor {
 		}
 	}
 	
-	protected Map<String, Method> getAndResetVisited() {
+	private Map<String, Method> getAndResetVisited() {
 		Map<String, Method> toReturn = new HashMap<String, Method>(this.visitedMethods);
 		this.visitedMethods = new HashMap<String, Method>();
 		return toReturn;

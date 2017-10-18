@@ -17,6 +17,9 @@ public class SensorDataStudy implements Study {
 	
 	private String infile;
 	private String outfile;
+	/**
+	 * Is this study on a single repo or many?
+	 */
 	private boolean single;
 	
 	public SensorDataStudy(String infile, String outfile, boolean single) {
@@ -25,6 +28,11 @@ public class SensorDataStudy implements Study {
 		this.single = single;
 	}
 	
+	/**
+	 * Initialise the miner with a single repository or a directory
+	 * containing many repositories, then begin mining using
+	 * a SensorDataVisitor object.
+	 */
 	@Override
 	public void execute() {
 		SensorDataVisitor visitor = new SensorDataVisitor();
