@@ -1,6 +1,7 @@
 package visitors;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,9 +18,14 @@ import org.repodriller.scm.SCMRepository;
 import helpers.ASTHelper;
 import models.Method;
 
-public abstract class SensorDataVisitor implements CommitVisitor {
+public class SensorDataVisitor implements CommitVisitor {
 
-private Map<String, Method> visitedMethods = Collections.synchronizedMap(new HashMap<String, Method>());
+	private Map<String, Method> visitedMethods;
+	
+	@Override
+	public void initialize(SCMRepository repo, PersistenceMechanism writer) {
+		this.visitedMethods = Collections.synchronizedMap(new HashMap<String, Method>());
+	}
 	
 	@Override
 	public void process(SCMRepository repo, Commit commit, PersistenceMechanism writer) {
@@ -46,7 +52,7 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 		return toReturn;
 	}
 	
-	protected void calculateComplexities(SCMRepository repo, Map<String, Method> visitedMethods) {
+	private void calculateComplexities(SCMRepository repo, Map<String, Method> visitedMethods) {
 		repo.getScm().reset();
 		repo.getScm().files().stream()
 			.filter(f -> f.fileNameEndsWith(".java") && f.getFullName().contains("src/"))
@@ -58,7 +64,7 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 			});
 	}
 	
-	protected void calculateEffort(SCMRepository repo, Map<String, Method> visitedMethods) {
+	private void calculateEffort(SCMRepository repo, Map<String, Method> visitedMethods) {
 		repo.getScm().reset();
 		visitedMethods.values().stream()
 			.filter(method -> method.getDeclared() != null && method.getTestInvoked() != null)
@@ -79,5 +85,38 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 	}
 	
 	@Override
-	public abstract void finalize(SCMRepository repo, PersistenceMechanism writer);
+	public void finalize(SCMRepository repo, PersistenceMechanism writer) {
+		Map<String, Method> visitedMethods = this.getAndResetVisited();
+		this.calculateComplexities(repo, visitedMethods);
+		this.calculateEffort(repo, visitedMethods);
+		visitedMethods.values().stream()
+			.filter(m -> m.isSolutionMethod())
+			.sorted((m1, m2) -> m1.getDeclared().getDate().compareTo(m2.getDeclared().getDate()))
+			.forEach(m -> {
+				Date declared = m.getDeclared().getDate().getTime();
+				String declaredHash = m.getDeclared().getHash();
+				Date invoked = null;
+				String invokedHash = null;
+				if (m.getTestInvoked() != null) {
+					invoked = m.getTestInvoked().getDate().getTime();
+					invokedHash = m.getTestInvoked().getHash();
+				}
+				int filesChanged = m.getFilesChanged();
+				String[] splitPath = repo.getPath().split("/");
+				String dirName = splitPath[splitPath.length - 1];
+				writer.write(
+						dirName,
+						m.getIdentifier(),
+						m.getName(),
+						declared,
+						invoked,
+						declaredHash,
+						invokedHash,
+						m.getCyclomaticComplexity(),
+						filesChanged > 0 ? m.getAdditions() : null,
+						filesChanged > 0 ? m.getRemovals() : null,
+						filesChanged > 0 ? m.getFilesChanged() : null
+				);
+			});
+	}
 }

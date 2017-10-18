@@ -11,24 +11,28 @@ import org.repodriller.filter.range.Commits;
 import org.repodriller.persistence.csv.CSVFile;
 import org.repodriller.scm.GitRepository;
 
-import visitors.AggregateRepoVisitor;
+import visitors.SensorDataVisitor;
 
-public class AggregateRepoStudy implements Study {
+public class SensorDataStudy implements Study {
+	
 	private String infile;
 	private String outfile;
+	private boolean single;
 	
-	public AggregateRepoStudy(String infile, String outfile) {
+	public SensorDataStudy(String infile, String outfile, boolean single) {
 		this.infile = infile;
 		this.outfile = outfile;
+		this.single = single;
 	}
 	
 	@Override
 	public void execute() {
-		AggregateRepoVisitor visitor = new AggregateRepoVisitor();
-		
-		new RepositoryMining()
-			.in(GitRepository.allProjectsIn(this.infile))
-			.through(Commits.all())
+		SensorDataVisitor visitor = new SensorDataVisitor();
+		RepositoryMining miner = new RepositoryMining();
+		miner = single ? 
+				miner.in(GitRepository.singleProject(this.infile)) :
+				miner.in(GitRepository.allProjectsIn(this.infile));
+		miner.through(Commits.all())
 			.filters(
 				new OnlyModificationsWithFileTypes(Arrays.asList(".java")),
 				new OnlyNoMerge(),
