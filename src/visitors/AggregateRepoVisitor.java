@@ -17,9 +17,8 @@ public class AggregateRepoVisitor extends SensorDataVisitor {
 		Map<String, Method> visitedMethods = super.getAndResetVisited();
 		super.calculateComplexities(repo, visitedMethods);
 		super.calculateEffort(repo, visitedMethods);
-		Set<Method> processedMethods = visitedMethods.entrySet().stream()
-				.filter(e -> super.methodFilter(e))
-				.map(e -> e.getValue())
+		Set<Method> processedMethods = visitedMethods.values().stream()
+				.filter(m -> m.isSolutionMethod())
 				.collect(Collectors.toSet());
 		long methodsNotTested = processedMethods.stream()
 				.filter(m -> m.getTestInvoked() == null)
