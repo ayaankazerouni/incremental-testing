@@ -14,11 +14,10 @@ public class SingleRepoVisitor extends SensorDataVisitor {
 		Map<String, Method> visitedMethods = super.getAndResetVisited();
 		super.calculateComplexities(repo, visitedMethods);
 		super.calculateEffort(repo, visitedMethods);
-		visitedMethods.entrySet().stream()
-			.filter(e -> super.methodFilter(e))
-			.sorted((e1, e2) -> e1.getValue().getDeclared().getDate().compareTo(e2.getValue().getDeclared().getDate()))
-			.forEach(e -> {
-				Method m = e.getValue();
+		visitedMethods.values().stream()
+			.filter(m -> m.isSolutionMethod())
+			.sorted((m1, m2) -> m1.getDeclared().getDate().compareTo(m2.getDeclared().getDate()))
+			.forEach(m -> {
 				Date declared = m.getDeclared().getDate().getTime();
 				String declaredHash = m.getDeclared().getHash();
 				Date invoked = null;

@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -42,12 +41,6 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 		}
 	}
 	
-	protected boolean methodFilter(Entry<String, Method> entry) {
-		Method m = entry.getValue();
-		return m.getDeclared() != null &&
-				!m.getIdentifier().toLowerCase().contains("test");
-	}
-	
 	protected Map<String, Method> getAndResetVisited() {
 		Map<String, Method> toReturn = new HashMap<String, Method>(this.visitedMethods);
 		this.visitedMethods = new HashMap<String, Method>();
@@ -70,29 +63,22 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 	
 	protected void calculateEffort(SCMRepository repo, Map<String, Method> visitedMethods) {
 		repo.getScm().reset();
-		for (Method method : visitedMethods.values()) {
-			if (method.getDeclared() == null || method.getTestInvoked() == null) {
-				continue;
-			}
-			
-			Commit declared = method.getDeclared();
-			Commit testInvoked = method.getTestInvoked();
-			List<Modification> modifications = null;
-			if (declared.getDate().compareTo(testInvoked.getDate()) <= 0) {
-				modifications = repo.getScm().getDiffBetweenCommits(declared.getHash(), testInvoked.getHash());
-			} else {
-				modifications = repo.getScm().getDiffBetweenCommits(testInvoked.getHash(), declared.getHash());
-			}
-			List<Modification> javaMods = modifications.stream()
-					.filter(mod -> mod.fileNameEndsWith(".java"))
+		visitedMethods.values().stream()
+			.filter(method -> method.getDeclared() != null && method.getTestInvoked() != null)
+			.forEach(method -> {
+				Commit declared = method.getDeclared();
+				Commit testInvoked = method.getTestInvoked();
+				List<Modification> modifications = null;
+				if (declared.getDate().compareTo(testInvoked.getDate()) <= 0) {
+					modifications = repo.getScm().getDiffBetweenCommits(declared.getHash(), testInvoked.getHash());
+				} else {
+					modifications = repo.getScm().getDiffBetweenCommits(testInvoked.getHash(), declared.getHash());
+				}
+				List<Modification> relevantMods = modifications.stream()
+					.filter(mod -> mod.fileNameEndsWith(".java") && mod.getNewPath().contains("src/"))
 					.collect(Collectors.toList());
-			method.setFilesChanged(javaMods.size());
-			javaMods.stream()
-				.forEach(m -> {
-					method.setAdditions(method.getAdditions() + m.getAdded());
-					method.setRemovals(method.getRemovals() + m.getRemoved());
-				});
-		}
+				method.setMetricsFromModifications(relevantMods); 
+			});
 	}
 	
 	@Override

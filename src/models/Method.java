@@ -1,6 +1,9 @@
 package models;
 
+import java.util.List;
+
 import org.repodriller.domain.Commit;
+import org.repodriller.domain.Modification;
 
 public class Method {
 
@@ -73,5 +76,18 @@ public class Method {
 
 	public void setFilesChanged(int filesChanged) {
 		this.filesChanged = filesChanged;
+	}
+	
+	public boolean isSolutionMethod() {
+		return this.getDeclared() != null &&
+				!this.getIdentifier().toLowerCase().contains("test");
+	}
+	
+	public void setMetricsFromModifications(List<Modification> modifications) {
+		this.setFilesChanged(modifications.size());
+		modifications.stream().forEach(mod -> {
+			this.setAdditions(this.getAdditions() + mod.getAdded());
+			this.setRemovals(this.getRemovals() + mod.getRemoved());
+		});
 	}
 }
