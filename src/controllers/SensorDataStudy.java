@@ -1,5 +1,6 @@
 package controllers;
 
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.repodriller.RepositoryMining;
@@ -46,6 +47,10 @@ public class SensorDataStudy implements Study {
 				new OnlyNoMerge(),
 				new OnlyInBranches(Arrays.asList("master"))
 			)
+			.setRepoTmpDir(Paths.get("/tmp/"))
+			.visitorsAreThreadSafe(true)
+			.visitorsChangeRepoState(true)
+			.withThreads(-1)
 			.process(visitor, new CSVFile(this.outfile))
 			.mine();
 	}

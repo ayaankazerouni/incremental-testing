@@ -51,13 +51,7 @@ public class SensorDataVisitor implements CommitVisitor {
 		}
 	}
 	
-	private Map<String, Method> getAndResetVisited() {
-		Map<String, Method> toReturn = new HashMap<String, Method>(this.visitedMethods);
-		this.visitedMethods = new HashMap<String, Method>();
-		return toReturn;
-	}
-	
-	private void calculateComplexities(SCMRepository repo, Map<String, Method> visitedMethods) {
+	private void calculateComplexities(SCMRepository repo) {
 		repo.getScm().reset();
 		repo.getScm().files().stream()
 			.filter(f -> f.fileNameEndsWith(".java") && f.getFullName().contains("src/"))
@@ -69,59 +63,62 @@ public class SensorDataVisitor implements CommitVisitor {
 			});
 	}
 	
-	private void calculateEffort(SCMRepository repo, Map<String, Method> visitedMethods) {
+	private void calculateEffort(SCMRepository repo) {
 		repo.getScm().reset();
-		visitedMethods.values().stream()
-			.filter(method -> method.getDeclared() != null && method.getTestInvoked() != null)
-			.forEach(method -> {
-				Commit declared = method.getDeclared();
-				Commit testInvoked = method.getTestInvoked();
-				List<Modification> modifications = null;
-				if (declared.getDate().compareTo(testInvoked.getDate()) <= 0) {
-					modifications = repo.getScm().getDiffBetweenCommits(declared.getHash(), testInvoked.getHash());
-				} else {
-					modifications = repo.getScm().getDiffBetweenCommits(testInvoked.getHash(), declared.getHash());
-				}
-				List<Modification> relevantMods = modifications.stream()
-					.filter(mod -> mod.fileNameEndsWith(".java") && mod.getNewPath().contains("src/"))
-					.collect(Collectors.toList());
-				method.setMetricsFromModifications(relevantMods); 
-			});
+		synchronized (visitedMethods) {
+			visitedMethods.values().stream()
+				.filter(method -> method.getDeclared() != null && method.getTestInvoked() != null)
+				.forEach(method -> {
+					Commit declared = method.getDeclared();
+					Commit testInvoked = method.getTestInvoked();
+					List<Modification> modifications = null;
+					if (declared.getDate().compareTo(testInvoked.getDate()) <= 0) {
+						modifications = repo.getScm().getDiffBetweenCommits(declared.getHash(), testInvoked.getHash());
+					} else {
+						modifications = repo.getScm().getDiffBetweenCommits(testInvoked.getHash(), declared.getHash());
+					}
+					List<Modification> relevantMods = modifications.stream()
+						.filter(mod -> mod.fileNameEndsWith(".java") && mod.getNewPath().contains("src/"))
+						.collect(Collectors.toList());
+					method.setMetricsFromModifications(relevantMods); 
+				});
+		}
 	}
 	
 	@Override
 	public void finalize(SCMRepository repo, PersistenceMechanism writer) {
-		Map<String, Method> visitedMethods = this.getAndResetVisited();
-		this.calculateComplexities(repo, visitedMethods);
-		this.calculateEffort(repo, visitedMethods);
-		visitedMethods.values().stream()
-			.filter(m -> m.isSolutionMethod())
-			.sorted((m1, m2) -> m1.getDeclared().getDate().compareTo(m2.getDeclared().getDate()))
-			.forEach(m -> {
-				Date declared = m.getDeclared().getDate().getTime();
-				String declaredHash = m.getDeclared().getHash();
-				Date invoked = null;
-				String invokedHash = null;
-				if (m.getTestInvoked() != null) {
-					invoked = m.getTestInvoked().getDate().getTime();
-					invokedHash = m.getTestInvoked().getHash();
-				}
-				int filesChanged = m.getFilesChanged();
-				String[] splitPath = repo.getPath().split("/");
-				String dirName = splitPath[splitPath.length - 1];
-				writer.write(
-						dirName,
-						m.getIdentifier(),
-						m.getName(),
-						declared,
-						invoked,
-						declaredHash,
-						invokedHash,
-						m.getCyclomaticComplexity(),
-						filesChanged > 0 ? m.getAdditions() : null,
-						filesChanged > 0 ? m.getRemovals() : null,
-						filesChanged > 0 ? m.getFilesChanged() : null
-				);
-			});
+		this.calculateComplexities(repo);
+		this.calculateEffort(repo);
+		synchronized (this.visitedMethods) {
+			this.visitedMethods.values().stream()
+				.filter(m -> m.isSolutionMethod())
+				.sorted((m1, m2) -> m1.getDeclared().getDate().compareTo(m2.getDeclared().getDate()))
+				.forEach(m -> {
+					Date declared = m.getDeclared().getDate().getTime();
+					String declaredHash = m.getDeclared().getHash();
+					Date invoked = null;
+					String invokedHash = null;
+					if (m.getTestInvoked() != null) {
+						invoked = m.getTestInvoked().getDate().getTime();
+						invokedHash = m.getTestInvoked().getHash();
+					}
+					int filesChanged = m.getFilesChanged();
+					String[] splitPath = repo.getPath().split("/");
+					String dirName = splitPath[splitPath.length - 1];
+					writer.write(
+							dirName,
+							m.getIdentifier(),
+							m.getName(),
+							declared,
+							invoked,
+							declaredHash,
+							invokedHash,
+							m.getCyclomaticComplexity(),
+							filesChanged > 0 ? m.getAdditions() : null,
+							filesChanged > 0 ? m.getRemovals() : null,
+							filesChanged > 0 ? m.getFilesChanged() : null
+					);
+				});
+		}
 	}
 }
