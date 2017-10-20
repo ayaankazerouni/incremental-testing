@@ -7,9 +7,21 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.Modifier;
 
 public class ASTHelper {
 
+	/**
+	 * Create and setup an ASTParser for visitation. Visits the specified
+	 * unit name (typically a class name), and builds the tree using the source
+	 * in sourcePath.
+	 * 
+	 * @param unitName		The compilation unit name, typically a class name
+	 * @param sourceCode	The source code in the specified unit
+	 * @param sourcePath	Path to the project root, so we can build an AST with resolved
+	 * 						type bindings.
+	 * @return an ASTParser set to parse the contents of a project
+	 */
 	public static ASTParser createAndSetupParser(String unitName, String sourceCode, String sourcePath) {
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setResolveBindings(true);
@@ -29,6 +41,19 @@ public class ASTHelper {
 		return parser;
 	}
 	
+	/**
+	 * Get a unique identifier for a method binding.
+	 * The identifier is built by concatenating the following,
+	 * in order: top level class name, method name, parameter types
+	 * 
+	 * @param binding	The method binding, resolved from a MethodDeclaration
+	 * 					or MethodInvocation that has been visited.
+	 * @param fileName	The class containing the node we used to resolve binding.
+	 * 					We use this to determine if the declaring class is top-level
+	 * 					or not.
+	 * @return	A String representing a unique identifier for this method within the
+	 * 			current project.
+	 */
 	public static String getUniqueMethodIdentifier(IMethodBinding binding, String fileName) {
 		ITypeBinding declaringClass = binding.getDeclaringClass();
 		if (fileName != null) {
@@ -60,5 +85,16 @@ public class ASTHelper {
 		}
 		
 		return builder.toString();
+	}
+	
+	/**
+	 * Check if the method belonging to the specified IMethodBinding
+	 * is public or not.
+	 * @param binding	The binding, resolved from a MethodInvocation or MethodDeclaration
+	 * 					that was visited.
+	 * @return true if it is public, false otherwise
+	 */
+	public static boolean methodIsPublic(IMethodBinding binding) {
+		return binding != null && (binding.getModifiers() & Modifier.PRIVATE) != 0;
 	}
 }

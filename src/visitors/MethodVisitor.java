@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.repodriller.domain.Commit;
@@ -55,8 +56,9 @@ public class MethodVisitor extends ASTVisitor {
 	 * Adds the method to the data structure if it is absent.
 	 */
 	public boolean visit(MethodDeclaration node) {
-		if (node.resolveBinding() != null) {
-			String identifier = ASTHelper.getUniqueMethodIdentifier(node.resolveBinding(), this.fileName);
+		IMethodBinding binding = node.resolveBinding();
+		if (binding != null && ASTHelper.methodIsPublic(binding)) {
+			String identifier = ASTHelper.getUniqueMethodIdentifier(binding, this.fileName);
 			if (identifier != null) {
 				synchronized (this.results) {
 					if (this.results.containsKey(identifier)) {
@@ -85,8 +87,9 @@ public class MethodVisitor extends ASTVisitor {
 	 * Adds the method to the data structure if it is absent.
 	 */
 	public boolean visit(MethodInvocation node) {
-		if (node.resolveMethodBinding() != null) {
-			String identifier = ASTHelper.getUniqueMethodIdentifier(node.resolveMethodBinding(), null);
+		IMethodBinding binding = node.resolveMethodBinding();
+		if (binding != null && ASTHelper.methodIsPublic(binding)) {
+			String identifier = ASTHelper.getUniqueMethodIdentifier(binding, null);
 			if (identifier != null) {
 				synchronized (this.results) {
 					if (this.results.containsKey(identifier)) {
