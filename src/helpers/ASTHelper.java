@@ -94,7 +94,7 @@ public class ASTHelper {
 	 * 					that was visited.
 	 * @return true if it is public, false otherwise
 	 */
-	public static boolean methodIsPublic(IMethodBinding binding) {
-		return binding != null && (binding.getModifiers() & Modifier.PRIVATE) != 0;
+	public static boolean methodIsNotPrivate(IMethodBinding binding) {
+		return (binding.getModifiers() & Modifier.PRIVATE) == 0;
 	}
 }
