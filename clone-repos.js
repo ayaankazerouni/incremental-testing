@@ -14,10 +14,14 @@ if (!fs.existsSync(file)) {
 
 const fileContents = fs.readFileSync(file, 'utf8');
 const records = parse(fileContents, { columns: true });
-records.forEach((r, index) => {
+records.forEach((r) => {
   const projectUuid = r['project.uuid'];
   const userUuid = r['user.uuid'];
-  const cmd = `git clone https://${userUuid}:${projectUuid}@${REMOTE_URL}/${projectUuid} student-repos/repos/${projectUuid}`;
+	const userName = r['email'].split('@')[0];
+	const assignment = r['assignment.name'].replace(/\s/g, ''); // assignment names somtimes have spaces
+	// make the dirName so that we can match repos to other metrics by user
+	const dirName = `${projectUuid}_${userName}_${assignment}`;
+  const cmd = `git clone https://${userUuid}:${projectUuid}@${REMOTE_URL}/${projectUuid} student-repos/repos/${dirName}`;
   try {
     execSync(cmd);
   } catch (err) {

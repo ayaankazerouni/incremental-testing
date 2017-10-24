@@ -22,6 +22,11 @@ public class Method {
 		this.cyclomaticComplexity = 1;
 	}
 
+	/**
+	 * Get the commit in which this Method was first invoked
+	 * in a test
+	 * @return a Commit instance
+	 */
 	public Commit getTestInvoked() {
 		return this.testInvoked;
 	}
@@ -54,27 +59,42 @@ public class Method {
 		return this.identifier;
 	}
 	
+	/**
+	 * Gets the number of additions between when this Method
+	 * was declared and when this Method was invoked in a test
+	 * @return additions
+	 */
 	public int getAdditions() {
 		return this.additions;
 	}
 	
-	public void setAdditions(int additions) {
+	private void setAdditions(int additions) {
 		this.additions = additions;
 	}
 
+	/**
+	 * Gets the number of removals between when this Method
+	 * was declared and when this Method was invoked in a test
+	 * @return removals
+	 */
 	public int getRemovals() {
 		return this.removals;
 	}
 
-	public void setRemovals(int removals) {
+	private void setRemovals(int removals) {
 		this.removals = removals;
 	}
 
+	/**	
+	 * Gets the number of files changed between when this Method
+	 * was declared and when this Method was invoked in a test
+	 * @return filesChanged
+	 */
 	public int getFilesChanged() {
 		return this.filesChanged;
 	}
 
-	public void setFilesChanged(int filesChanged) {
+	private void setFilesChanged(int filesChanged) {
 		this.filesChanged = filesChanged;
 	}
 	
@@ -83,6 +103,10 @@ public class Method {
 				!this.getIdentifier().toLowerCase().contains("test");
 	}
 	
+	/**
+	 * Given a list of modifications, set metrics for this Method
+	 * @param modifications
+	 */
 	public void setMetricsFromModifications(List<Modification> modifications) {
 		this.setFilesChanged(modifications.size());
 		modifications.stream().forEach(mod -> {

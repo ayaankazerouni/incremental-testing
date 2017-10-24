@@ -1,6 +1,7 @@
 package visitors;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,16 +13,25 @@ import org.repodriller.domain.Commit;
 import org.repodriller.domain.Modification;
 import org.repodriller.persistence.PersistenceMechanism;
 import org.repodriller.scm.CommitVisitor;
-import org.repodriller.scm.RepositoryFile;
 import org.repodriller.scm.SCMRepository;
 
 import helpers.ASTHelper;
 import models.Method;
 
-public abstract class SensorDataVisitor implements CommitVisitor {
-
-private Map<String, Method> visitedMethods = Collections.synchronizedMap(new HashMap<String, Method>());
+public class SensorDataVisitor implements CommitVisitor {
 	
+	private Map<String, Method> visitedMethods;
+	
+	@Override
+	public void initialize(SCMRepository repo, PersistenceMechanism writer) {
+		this.visitedMethods = Collections.synchronizedMap(new HashMap<String, Method>());
+	}
+	
+	/**
+	 * Checkout each commit and build an AST for the entire project,
+	 * then calculate method metrics and put them in a persistent
+	 * data structure.
+	 */
 	@Override
 	public void process(SCMRepository repo, Commit commit, PersistenceMechanism writer) {
 		try {
@@ -41,46 +51,74 @@ private Map<String, Method> visitedMethods = Collections.synchronizedMap(new Has
 		}
 	}
 	
-	protected Map<String, Method> getAndResetVisited() {
-		Map<String, Method> toReturn = new HashMap<String, Method>(this.visitedMethods);
-		this.visitedMethods = new HashMap<String, Method>();
-		return toReturn;
-	}
-	
-	protected void calculateComplexities(SCMRepository repo, Map<String, Method> visitedMethods) {
+	private void calculateComplexities(SCMRepository repo) {
 		repo.getScm().reset();
-		for (RepositoryFile file : repo.getScm().files()) {
-			if (!file.fileNameEndsWith(".java") || !file.getFile().getParentFile().getName().equals("src")) {
-				continue;
-			}
-
-			ComplexityVisitor visitor = new ComplexityVisitor(visitedMethods, file.getFile().getName());
-			ASTParser parser = ASTHelper.createAndSetupParser(file.getFile().getName(), file.getSourceCode(), repo.getPath() + "/");
-			CompilationUnit result = (CompilationUnit) parser.createAST(null);
-			result.accept(visitor);
-		}
-	}
-	
-	protected void calculateEffort(SCMRepository repo, Map<String, Method> visitedMethods) {
-		repo.getScm().reset();
-		visitedMethods.values().stream()
-			.filter(method -> method.getDeclared() != null && method.getTestInvoked() != null)
-			.forEach(method -> {
-				Commit declared = method.getDeclared();
-				Commit testInvoked = method.getTestInvoked();
-				List<Modification> modifications = null;
-				if (declared.getDate().compareTo(testInvoked.getDate()) <= 0) {
-					modifications = repo.getScm().getDiffBetweenCommits(declared.getHash(), testInvoked.getHash());
-				} else {
-					modifications = repo.getScm().getDiffBetweenCommits(testInvoked.getHash(), declared.getHash());
-				}
-				List<Modification> relevantMods = modifications.stream()
-					.filter(mod -> mod.fileNameEndsWith(".java") && mod.getNewPath().contains("src/"))
-					.collect(Collectors.toList());
-				method.setMetricsFromModifications(relevantMods); 
+		repo.getScm().files().stream()
+			.filter(f -> f.fileNameEndsWith(".java") && f.getFullName().contains("src/"))
+			.forEach(f -> {
+				ComplexityVisitor visitor = new ComplexityVisitor(visitedMethods, f.getFile().getName());
+				ASTParser parser = ASTHelper.createAndSetupParser(f.getFile().getName(), f.getSourceCode(), repo.getPath() + "/");
+				CompilationUnit result = (CompilationUnit) parser.createAST(null);
+				result.accept(visitor);
 			});
 	}
 	
+	private void calculateEffort(SCMRepository repo) {
+		repo.getScm().reset();
+		synchronized (visitedMethods) {
+			visitedMethods.values().stream()
+				.filter(method -> method.getDeclared() != null && method.getTestInvoked() != null)
+				.forEach(method -> {
+					Commit declared = method.getDeclared();
+					Commit testInvoked = method.getTestInvoked();
+					List<Modification> modifications = null;
+					if (declared.getDate().compareTo(testInvoked.getDate()) <= 0) {
+						modifications = repo.getScm().getDiffBetweenCommits(declared.getHash(), testInvoked.getHash());
+					} else {
+						modifications = repo.getScm().getDiffBetweenCommits(testInvoked.getHash(), declared.getHash());
+					}
+					List<Modification> relevantMods = modifications.stream()
+						.filter(mod -> mod.fileNameEndsWith(".java") && mod.getNewPath().contains("src/"))
+						.collect(Collectors.toList());
+					method.setMetricsFromModifications(relevantMods); 
+				});
+		}
+	}
+
 	@Override
-	public abstract void finalize(SCMRepository repo, PersistenceMechanism writer);
+	public void finalize(SCMRepository repo, PersistenceMechanism writer) {
+		this.calculateComplexities(repo);
+		this.calculateEffort(repo);
+		synchronized (this.visitedMethods) {
+			this.visitedMethods.values().stream()
+				.filter(m -> m.isSolutionMethod())
+				.sorted((m1, m2) -> m1.getDeclared().getDate().compareTo(m2.getDeclared().getDate()))
+				.forEach(m -> {
+					Date declared = m.getDeclared().getDate().getTime();
+					String declaredHash = m.getDeclared().getHash();
+					Date invoked = null;
+					String invokedHash = null;
+					if (m.getTestInvoked() != null) {
+						invoked = m.getTestInvoked().getDate().getTime();
+						invokedHash = m.getTestInvoked().getHash();
+					}
+					int filesChanged = m.getFilesChanged();
+					String[] splitPath = repo.getPath().split("/");
+					String dirName = splitPath[splitPath.length - 1];
+					writer.write(
+							dirName,
+							m.getIdentifier(),
+							m.getName(),
+							declared,
+							invoked,
+							declaredHash,
+							invokedHash,
+							m.getCyclomaticComplexity(),
+							filesChanged > 0 ? m.getAdditions() : null,
+							filesChanged > 0 ? m.getRemovals() : null,
+							filesChanged > 0 ? m.getFilesChanged() : null
+					);
+				});
+		}
+	}
 }

@@ -20,6 +20,12 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 import helpers.ASTHelper;
 import models.Method;
 
+/**
+ * Visits all nodes in the AST that contribute to
+ * McCabe's cyclomatic complexity: if, for, while,
+ * do, case (but not the switch itself), catch,
+ * and boolean literals && and ||
+ */
 public class ComplexityVisitor extends ASTVisitor {
 
 	private Map<String, Method> results;
