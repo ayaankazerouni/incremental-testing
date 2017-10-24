@@ -27,7 +27,8 @@ hs_err_pid*
 /target/
 
 # student repositories
-student-repos/
+student-repos/*.csv
+student-repos/repos/
 
 # node_modules
 node_modules/

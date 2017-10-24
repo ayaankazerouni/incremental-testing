@@ -21,7 +21,7 @@ records.forEach((r) => {
 	const assignment = r['assignment.name'].replace(/\s/g, ''); // assignment names somtimes have spaces
 	// make the dirName so that we can match repos to other metrics by user
 	const dirName = `${projectUuid}_${userName}_${assignment}`;
-  const cmd = `git clone https://${userUuid}:${projectUuid}@${REMOTE_URL}/${projectUuid} student-repos/repos/${dirName}`;
+  const cmd = `git clone https://${userUuid}:${projectUuid}@${REMOTE_URL}/${projectUuid} repos/${dirName}`;
   try {
     execSync(cmd);
   } catch (err) {
