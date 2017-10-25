@@ -9,6 +9,7 @@ import org.repodriller.filter.commit.OnlyInBranches;
 import org.repodriller.filter.commit.OnlyModificationsWithFileTypes;
 import org.repodriller.filter.commit.OnlyNoMerge;
 import org.repodriller.filter.range.Commits;
+
 import org.repodriller.persistence.csv.CSVFile;
 import org.repodriller.scm.GitRepository;
 
@@ -50,7 +51,7 @@ public class SensorDataStudy implements Study {
 			.setRepoTmpDir(Paths.get("/tmp/"))
 			.visitorsAreThreadSafe(true)
 			.visitorsChangeRepoState(true)
-			.withThreads(-1)
+			.withThreads()
 			.process(visitor, new CSVFile(this.outfile))
 			.mine();
 	}
