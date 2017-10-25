@@ -56,26 +56,10 @@ public class ASTHelper {
 	 */
 	public static String getUniqueMethodIdentifier(IMethodBinding binding, String fileName) {
 		ITypeBinding declaringClass = binding.getDeclaringClass();
-		if (fileName != null) {
-			// if a filename is specified, check that the class matches
-			// the file name.
-			ITypeBinding topLevelClass = declaringClass;
-			
-			// this could be an inner class, so get the top level class
-			while (!topLevelClass.isTopLevel() ) {
-				topLevelClass = declaringClass.getDeclaringClass();
-			}
-			
-			fileName = fileName.replaceFirst("[.][^.]+$", "");
-			if (!topLevelClass.getName().equals(fileName)) {
-				// this file name is not the same as the top level class
-				// this class was never meant to be compiled, so ignore this method
-				return null;
-			}
-		}
 		
-		StringBuilder builder = new StringBuilder(declaringClass.getName())
-					.append("," + binding.getName());
+		StringBuilder builder = new StringBuilder(fileName)
+				.append(declaringClass.getName())
+				.append("," + binding.getName());
 		if (binding.getParameterTypes().length == 0) {
 			return builder.toString();
 		}
