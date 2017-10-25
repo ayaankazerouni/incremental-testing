@@ -91,7 +91,8 @@ public class SensorDataVisitor implements CommitVisitor {
 		this.calculateEffort(repo);
 		synchronized (this.visitedMethods) {
 			this.visitedMethods.values().stream()
-				.filter(m -> m.isSolutionMethod())
+				// methods with CC = 0 are methods that are no longer present in the final revision
+				.filter(m -> m.isSolutionMethod() && m.getCyclomaticComplexity() != 0)
 				.sorted((m1, m2) -> m1.getDeclared().getDate().compareTo(m2.getDeclared().getDate()))
 				.forEach(m -> {
 					Date declared = m.getDeclared().getDate().getTime();
