@@ -19,7 +19,6 @@ public class Method {
 	public Method(String name, String identifier) {
 		this.name = name;
 		this.identifier = identifier;
-		this.cyclomaticComplexity = 1;
 	}
 
 	/**
@@ -52,7 +51,11 @@ public class Method {
 	}
 	
 	public void incrementCyclomaticComplexity() {
-		this.cyclomaticComplexity++;
+		if (this.cyclomaticComplexity == 0) {
+			this.cyclomaticComplexity += 2;
+		} else {
+			this.cyclomaticComplexity++;
+		}
 	}
 	
 	public String getIdentifier() {

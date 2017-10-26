@@ -89,7 +89,7 @@ public class MethodVisitor extends ASTVisitor {
 	public boolean visit(MethodInvocation node) {
 		IMethodBinding binding = node.resolveMethodBinding();
 		if (binding != null && ASTHelper.methodIsNotPrivate(binding)) {
-			String identifier = ASTHelper.getUniqueMethodIdentifier(binding, null);
+			String identifier = ASTHelper.getUniqueMethodIdentifier(binding, this.fileName);
 			if (identifier != null) {
 				synchronized (this.results) {
 					if (this.results.containsKey(identifier)) {
