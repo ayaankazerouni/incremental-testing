@@ -24,6 +24,14 @@ public class SensorDataStudy implements Study {
 	 */
 	private boolean single;
 	
+	/**
+	 * Initialise the Study on the specified repository or directory
+	 * of repositories.
+	 * 
+	 * @param infile	The input (a repo or directory containing many repos)
+	 * @param outfile	The CSV output (will get overwritten if it already exists)
+	 * @param single	Is this study happening on one repo or many repos?
+	 */
 	public SensorDataStudy(String infile, String outfile, boolean single) {
 		this.infile = infile;
 		this.outfile = outfile;
@@ -31,7 +39,7 @@ public class SensorDataStudy implements Study {
 	}
 	
 	/**
-	 * Initialise the miner with a single repository or a directory
+	 * Initialise and execute the miner with a single repository or a directory
 	 * containing many repositories, then begin mining using
 	 * a SensorDataVisitor object.
 	 */

@@ -101,6 +101,13 @@ public class Method {
 		this.filesChanged = filesChanged;
 	}
 	
+	/**
+	 * Check if this method is a part of the software solution or not.
+	 * A method is a solution method if it was declared in this project, and
+	 * if it is not a test method.
+	 * 
+	 * @return true if solution method, false otherwise
+	 */
 	public boolean isSolutionMethod() {
 		return this.getDeclared() != null &&
 				!this.getIdentifier().toLowerCase().contains("test");

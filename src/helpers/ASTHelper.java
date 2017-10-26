@@ -54,11 +54,10 @@ public class ASTHelper {
 	 * @return	A String representing a unique identifier for this method within the
 	 * 			current project.
 	 */
-	public static String getUniqueMethodIdentifier(IMethodBinding binding, String fileName) {
+	public static String getUniqueMethodIdentifier(IMethodBinding binding) {
 		ITypeBinding declaringClass = binding.getDeclaringClass();
 		
-		StringBuilder builder = new StringBuilder(fileName)
-				.append(declaringClass.getName())
+		StringBuilder builder = new StringBuilder(declaringClass.getName())
 				.append("," + binding.getName());
 		if (binding.getParameterTypes().length == 0) {
 			return builder.toString();
