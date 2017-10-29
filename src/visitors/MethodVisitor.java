@@ -34,15 +34,10 @@ public class MethodVisitor extends ASTVisitor {
 	 */
 	private boolean testClass;
 	
-	/**
-	 * The name of the file in the current Modification
-	 */
-	private String fileName;
 	
 	public MethodVisitor(Commit commit, Map<String, Method> visitedMethods, String fileName) {
 		this.results = visitedMethods;
 		this.commit = commit;
-		this.fileName = fileName;
 		this.testClass = fileName.toLowerCase().contains("test");
 	}
 	
@@ -58,7 +53,7 @@ public class MethodVisitor extends ASTVisitor {
 	public boolean visit(MethodDeclaration node) {
 		IMethodBinding binding = node.resolveBinding();
 		if (binding != null && ASTHelper.methodIsNotPrivate(binding)) {
-			String identifier = ASTHelper.getUniqueMethodIdentifier(binding, this.fileName);
+			String identifier = ASTHelper.getUniqueMethodIdentifier(binding);
 			if (identifier != null) {
 				synchronized (this.results) {
 					if (this.results.containsKey(identifier)) {
@@ -89,7 +84,7 @@ public class MethodVisitor extends ASTVisitor {
 	public boolean visit(MethodInvocation node) {
 		IMethodBinding binding = node.resolveMethodBinding();
 		if (binding != null && ASTHelper.methodIsNotPrivate(binding)) {
-			String identifier = ASTHelper.getUniqueMethodIdentifier(binding, this.fileName);
+			String identifier = ASTHelper.getUniqueMethodIdentifier(binding);
 			if (identifier != null) {
 				synchronized (this.results) {
 					if (this.results.containsKey(identifier)) {

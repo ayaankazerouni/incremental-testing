@@ -29,11 +29,9 @@ import models.Method;
 public class ComplexityVisitor extends ASTVisitor {
 
 	private Map<String, Method> results;
-	private String fileName;
 
-	public ComplexityVisitor(Map<String, Method> visitedMethods, String fileName) {
+	public ComplexityVisitor(Map<String, Method> visitedMethods) {
 		this.results = visitedMethods;
-		this.fileName = fileName;
 	}
 
 	@Override
@@ -97,7 +95,7 @@ public class ComplexityVisitor extends ASTVisitor {
 	private void visitMcCabeComplex(ASTNode node) {
 		MethodDeclaration enclosingMethod = this.getEnclosingMethod(node);
 		IMethodBinding binding = enclosingMethod.resolveBinding();
-		String identifier = ASTHelper.getUniqueMethodIdentifier(binding, this.fileName);
+		String identifier = ASTHelper.getUniqueMethodIdentifier(binding);
 		String name = enclosingMethod.getName().getIdentifier();
 		if (identifier != null) {
 			if (this.results.containsKey(identifier)) {
