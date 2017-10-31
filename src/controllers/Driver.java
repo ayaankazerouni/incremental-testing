@@ -5,7 +5,7 @@ import org.repodriller.RepoDriller;
 public class Driver {
 
 	public static void main(String[] args) {
-		String repoPath = System.getProperty("user.dir") + "/student-repos/repos/";
+		String repoPath = System.getProperty("user.dir") + "/student-repos/spring-repos/";
 		new RepoDriller().start(new SensorDataStudy(repoPath, "/tmp/repo-mining.csv", false));
 	}
 }
