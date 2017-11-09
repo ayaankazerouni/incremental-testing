@@ -40,9 +40,6 @@ public class CoEvolutionStudy implements Study {
 				new OnlyInBranches(Arrays.asList("master"))
 			)
 			.setRepoTmpDir(Paths.get("/tmp/"))
-			.visitorsAreThreadSafe(true)
-			.visitorsChangeRepoState(false)
-			.withThreads()
 			.process(visitor, new CSVFile(this.outfile))
 			.mine();
 	}

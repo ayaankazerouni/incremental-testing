@@ -1,5 +1,6 @@
 package visitors;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,15 +11,19 @@ import org.repodriller.persistence.PersistenceMechanism;
 import org.repodriller.scm.CommitVisitor;
 import org.repodriller.scm.SCMRepository;
 
-import models.DayOfWork;
+import models.WorkSession;
 
 public class CoEvolutionVisitor implements CommitVisitor {
 	
-	private Map<Integer, DayOfWork> workDone;
+	private Map<Integer, WorkSession> workDone;
+	private Calendar lastTime;
+	private int workSessionId;
 	
 	@Override
 	public void initialize(SCMRepository repo, PersistenceMechanism writer) {
-		this.workDone = Collections.synchronizedMap(new HashMap<Integer, DayOfWork>());
+		this.workDone = Collections.synchronizedMap(new HashMap<Integer, WorkSession>());
+		this.lastTime = null;
+		this.workSessionId = 0;
 	}
 
 	@Override
@@ -27,20 +32,29 @@ public class CoEvolutionVisitor implements CommitVisitor {
 			commit.getModifications().stream()
 			.filter(mod -> mod.fileNameEndsWith(".java"))
 			.forEach(mod -> {
-				Calendar date = commit.getDate();
-				int dateId = date.get(Calendar.DAY_OF_YEAR);
-				DayOfWork workDay = this.workDone.get(dateId);
-				if (workDay == null) {
-					workDay = new DayOfWork();
+				Calendar time = commit.getDate();
+				long diff = lastTime == null ?
+						0 :
+						ChronoUnit.HOURS.between(lastTime.toInstant(), time.toInstant());
+				
+				WorkSession workSession = this.workDone.get(workSessionId);
+				
+				if (workSession == null) {
+					workSession = new WorkSession(time);
+				} else if (diff > 1) {
+					workSession.setEndTime(lastTime);
+					workSessionId++;
+					workSession = new WorkSession(time);
 				}
 				
 				if (mod.getFileName().toLowerCase().contains("test")) {
-					workDay.incrementalTestFiles(mod.getAdded());
+					workSession.incrementalTestFiles(mod.getAdded());
 				} else {
-					workDay.incrementProductionFiles(mod.getAdded());
+					workSession.incrementProductionFiles(mod.getAdded());
 				}
-				workDay.addSeenFile(mod.getFileName());
-				this.workDone.put(dateId, workDay);
+				
+				this.lastTime = time;
+				this.workDone.put(workSessionId, workSession);
 			});
 		}
 	}
@@ -48,14 +62,26 @@ public class CoEvolutionVisitor implements CommitVisitor {
 	@Override
 	public void finalize(SCMRepository repo, PersistenceMechanism writer) {
 		synchronized (this.workDone) {
+			WorkSession lastSession = this.workDone.get(this.workSessionId);
+			lastSession.setEndTime(this.lastTime);
+			this.workDone.put(this.workSessionId, lastSession);
+			String[] pathSplit = repo.getPath().split("/");
+			String[] project = pathSplit[pathSplit.length - 1].split("_");
+			String projectUuid = project[0];
+			String userId = project[1];
+			String assignment = project[2];
 			this.workDone.entrySet().stream()
 			.forEach(e -> {
-				DayOfWork day = e.getValue();
+				WorkSession workSession = e.getValue();
 				writer.write(
-					repo.getPath(),
+					projectUuid,
+					userId,
+					assignment,
 					e.getKey(),
-					day.getTestFiles(),
-					day.getProductionFiles()
+					workSession.getTestFiles(),
+					workSession.getProductionFiles(),
+					workSession.getStartTime().getTimeInMillis(),
+					workSession.getEndTime().getTimeInMillis()
 				);
 			});
 		}
