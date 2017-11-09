@@ -16,7 +16,7 @@ import models.Method;
  * Visits all method invocations and method declarations
  * in the project.
  */
-public class MethodVisitor extends ASTVisitor {
+public class MethodASTVisitor extends ASTVisitor {
 	
 	/**
 	 * A map of methods. Each method has properties that are
@@ -35,7 +35,7 @@ public class MethodVisitor extends ASTVisitor {
 	private boolean testClass;
 	
 	
-	public MethodVisitor(Commit commit, Map<String, Method> visitedMethods, String fileName) {
+	public MethodASTVisitor(Commit commit, Map<String, Method> visitedMethods, String fileName) {
 		this.results = visitedMethods;
 		this.commit = commit;
 		this.testClass = fileName.toLowerCase().contains("test");
