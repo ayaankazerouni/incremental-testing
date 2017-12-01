@@ -10,7 +10,7 @@
     </appender>
 
     <category name="org.repodriller">
-        <priority value="DEBUG"/>
+        <priority value="INFO"/>
         <appender-ref ref="main"/>
     </category>
 

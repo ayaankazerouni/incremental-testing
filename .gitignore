@@ -28,7 +28,8 @@ hs_err_pid*
 
 # student repositories
 student-repos/*.csv
-student-repos/repos/
+student-repos/*repos/
 
 # node_modules
 node_modules/
+/bin/

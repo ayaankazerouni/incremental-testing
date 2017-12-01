@@ -38,7 +38,7 @@ public class SensorDataVisitor implements CommitVisitor {
 			repo.getScm().checkout(commit.getHash());
 			for (Modification m : commit.getModifications()) {
 				if (m.fileNameEndsWith(".java") && m.getNewPath().contains("src/")) {
-					MethodVisitor methodVisitor = new MethodVisitor(commit, this.visitedMethods, m.getFileName());
+					MethodASTVisitor methodVisitor = new MethodASTVisitor(commit, this.visitedMethods, m.getFileName());
 					ASTParser parser = ASTHelper.createAndSetupParser(m.getFileName(), m.getSourceCode(), repo.getPath() + "/src");
 					CompilationUnit result = (CompilationUnit) parser.createAST(null);
 					result.accept(methodVisitor);
@@ -56,7 +56,7 @@ public class SensorDataVisitor implements CommitVisitor {
 		repo.getScm().files().stream()
 			.filter(f -> f.fileNameEndsWith(".java") && f.getFullName().contains("src/"))
 			.forEach(f -> {
-				ComplexityVisitor visitor = new ComplexityVisitor(visitedMethods);
+				ComplexityASTVisitor visitor = new ComplexityASTVisitor(visitedMethods);
 				ASTParser parser = ASTHelper.createAndSetupParser(f.getFile().getName(), f.getSourceCode(), repo.getPath() + "/");
 				CompilationUnit result = (CompilationUnit) parser.createAST(null);
 				result.accept(visitor);

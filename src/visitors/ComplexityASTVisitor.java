@@ -26,11 +26,11 @@ import models.Method;
  * do, case (but not the switch itself), catch,
  * and boolean literals && and ||
  */
-public class ComplexityVisitor extends ASTVisitor {
+public class ComplexityASTVisitor extends ASTVisitor {
 
 	private Map<String, Method> results;
 
-	public ComplexityVisitor(Map<String, Method> visitedMethods) {
+	public ComplexityASTVisitor(Map<String, Method> visitedMethods) {
 		this.results = visitedMethods;
 	}
 
