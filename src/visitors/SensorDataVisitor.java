@@ -115,8 +115,12 @@ public class SensorDataVisitor implements CommitVisitor {
 							declaredHash,
 							invokedHash,
 							m.getCyclomaticComplexity(),
-							filesChanged > 0 ? m.getAdditions() : null,
-							filesChanged > 0 ? m.getRemovals() : null,
+							filesChanged > 0 ? m.getSolutionAdditions() : null,
+							filesChanged > 0 ? m.getSolutionRemovals() : null,
+							filesChanged > 0 ? m.getTestAdditions() : null,
+							filesChanged > 0 ? m.getTestRemovals() : null,
+							filesChanged > 0 ? m.getSolutionAdditions() + m.getTestAdditions() : null,
+							filesChanged > 0 ? m.getSolutionRemovals() + m.getTestRemovals() : null,
 							filesChanged > 0 ? m.getFilesChanged() : null
 					);
 				});

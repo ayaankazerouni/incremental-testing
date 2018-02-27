@@ -11,8 +11,10 @@ public class Method {
 	private Commit testInvoked;
 	private String name;
 	private String identifier;
-	private int additions;
-	private int removals;
+	private int solultionAdditions;
+	private int solutionRemovals;
+	private int testAdditions;
+	private int testRemovals;
 	private int filesChanged;
 	private int cyclomaticComplexity;
 	
@@ -63,31 +65,57 @@ public class Method {
 	}
 	
 	/**
-	 * Gets the number of additions between when this Method
+	 * Gets the number of additions to solution code between when this Method
 	 * was declared and when this Method was invoked in a test
 	 * @return additions
 	 */
-	public int getAdditions() {
-		return this.additions;
+	public int getSolutionAdditions() {
+		return this.solultionAdditions;
 	}
 	
-	private void setAdditions(int additions) {
-		this.additions = additions;
+	private void setSolutionAdditions(int additions) {
+		this.solultionAdditions = additions;
+	}
+	
+	/**
+	 * Gets the number of additions to test code between when this Method
+	 * was declared and when this Method was invoked in a test
+	 * @return additions
+	 */
+	public int getTestAdditions() {
+		return this.testAdditions;
+	}
+	
+	private void setTestAdditions(int additions) {
+		this.testAdditions = additions;
 	}
 
 	/**
-	 * Gets the number of removals between when this Method
+	 * Gets the number of removals from solution code between when this Method
 	 * was declared and when this Method was invoked in a test
 	 * @return removals
 	 */
-	public int getRemovals() {
-		return this.removals;
+	public int getSolutionRemovals() {
+		return this.solutionRemovals;
 	}
 
-	private void setRemovals(int removals) {
-		this.removals = removals;
+	private void setSolutionRemovals(int removals) {
+		this.solutionRemovals = removals;
 	}
 
+	/**
+	 * Gets the number of removals from test code between when this Method
+	 * was declared and when this Method was invoked in a test
+	 * @return removals
+	 */
+	public int getTestRemovals() {
+		return this.testRemovals;
+	}
+
+	private void setTestRemovals(int removals) {
+		this.testRemovals = removals;
+	}
+	
 	/**	
 	 * Gets the number of files changed between when this Method
 	 * was declared and when this Method was invoked in a test
@@ -120,8 +148,13 @@ public class Method {
 	public void setMetricsFromModifications(List<Modification> modifications) {
 		this.setFilesChanged(modifications.size());
 		modifications.stream().forEach(mod -> {
-			this.setAdditions(this.getAdditions() + mod.getAdded());
-			this.setRemovals(this.getRemovals() + mod.getRemoved());
+			if (mod.getFileName().toLowerCase().contains("test")) {
+				this.setTestAdditions(this.getTestAdditions() + mod.getAdded());
+				this.setTestRemovals(this.getTestRemovals() + mod.getRemoved());
+			} else {
+				this.setSolutionAdditions(this.getSolutionAdditions() + mod.getAdded());
+				this.setSolutionRemovals(this.getSolutionRemovals() + mod.getRemoved());
+			}
 		});
 	}
 }

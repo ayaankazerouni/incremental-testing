@@ -8,9 +8,11 @@ import org.repodriller.Study;
 import org.repodriller.filter.commit.OnlyInBranches;
 import org.repodriller.filter.commit.OnlyModificationsWithFileTypes;
 import org.repodriller.filter.commit.OnlyNoMerge;
+import org.repodriller.filter.diff.OnlyDiffsWithFileTypes;
 import org.repodriller.filter.range.Commits;
 
 import org.repodriller.persistence.csv.CSVFile;
+import org.repodriller.scm.CollectConfiguration;
 import org.repodriller.scm.GitRepository;
 
 import visitors.SensorDataVisitor;
@@ -56,6 +58,7 @@ public class SensorDataStudy implements Study {
 				new OnlyNoMerge(),
 				new OnlyInBranches(Arrays.asList("master"))
 			)
+			.collect(new CollectConfiguration().everything().diffs(new OnlyDiffsWithFileTypes(Arrays.asList(".java"))))
 			.setRepoTmpDir(Paths.get("/tmp/"))
 			.visitorsAreThreadSafe(true)
 			.visitorsChangeRepoState(true)
