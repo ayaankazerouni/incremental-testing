@@ -80,6 +80,7 @@ public class SensorDataVisitor implements CommitVisitor {
 					List<Modification> relevantMods = modifications.stream()
 						.filter(mod -> mod.fileNameEndsWith(".java") && mod.getNewPath().contains("src/"))
 						.collect(Collectors.toList());
+					method.markPresent();
 					method.setMetricsFromModifications(relevantMods); 
 				});
 		}
@@ -91,8 +92,7 @@ public class SensorDataVisitor implements CommitVisitor {
 		this.calculateEffort(repo);
 		synchronized (this.visitedMethods) {
 			this.visitedMethods.values().stream()
-				// methods with CC = 0 are methods that are no longer present in the final revision
-				.filter(m -> m.isSolutionMethod() && m.getCyclomaticComplexity() != 0)
+				.filter(m -> m.isSolutionMethod() && m.isPresentInFinal())
 				.sorted((m1, m2) -> m1.getDeclared().getDate().compareTo(m2.getDeclared().getDate()))
 				.forEach(m -> {
 					Date declared = m.getDeclared().getDate().getTime();

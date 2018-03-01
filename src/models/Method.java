@@ -17,10 +17,12 @@ public class Method {
 	private int testRemovals;
 	private int filesChanged;
 	private int cyclomaticComplexity;
+	private boolean presentInFinal;
 	
 	public Method(String name, String identifier) {
 		this.name = name;
 		this.identifier = identifier;
+		this.cyclomaticComplexity = 1;
 	}
 
 	/**
@@ -53,11 +55,7 @@ public class Method {
 	}
 	
 	public void incrementCyclomaticComplexity() {
-		if (this.cyclomaticComplexity == 0) {
-			this.cyclomaticComplexity += 2;
-		} else {
-			this.cyclomaticComplexity++;
-		}
+		this.cyclomaticComplexity++;
 	}
 	
 	public String getIdentifier() {
@@ -114,6 +112,14 @@ public class Method {
 
 	private void setTestRemovals(int removals) {
 		this.testRemovals = removals;
+	}
+	
+	public void markPresent() {
+		this.presentInFinal = true;
+	}
+	
+	public boolean isPresentInFinal() {
+		return this.presentInFinal;
 	}
 	
 	/**	
