@@ -58,7 +58,7 @@ public class SensorDataStudy implements Study {
 				new OnlyNoMerge(),
 				new OnlyInBranches(Arrays.asList("master"))
 			)
-			.collect(new CollectConfiguration().diffs(new OnlyDiffsWithFileTypes(Arrays.asList(".java"))))
+			.collect(new CollectConfiguration().branches().sourceCode().diffs(new OnlyDiffsWithFileTypes(Arrays.asList(".java"))))
 			.setRepoTmpDir(Paths.get("/tmp/"))
 			.visitorsAreThreadSafe(true)
 			.visitorsChangeRepoState(true)
