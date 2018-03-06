@@ -1,4 +1,4 @@
-package visitors;
+package visitors.ast;
 
 import java.util.Collections;
 import java.util.Map;
@@ -10,7 +10,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.repodriller.domain.Commit;
 
 import helpers.ASTHelper;
-import models.Method;
+import models.MethodTimeToTestInvoke;
 
 /**
  * Visits all method invocations and method declarations
@@ -22,7 +22,7 @@ public class MethodASTVisitor extends ASTVisitor {
 	 * A map of methods. Each method has properties that are
 	 * updated in this persistent structure as visitations take place
 	 */
-	private Map<String, Method> results;
+	private Map<String, MethodTimeToTestInvoke> results;
 	
 	/**
 	 * The Commit being visited
@@ -35,13 +35,13 @@ public class MethodASTVisitor extends ASTVisitor {
 	private boolean testClass;
 	
 	
-	public MethodASTVisitor(Commit commit, Map<String, Method> visitedMethods, String fileName) {
+	public MethodASTVisitor(Commit commit, Map<String, MethodTimeToTestInvoke> visitedMethods, String fileName) {
 		this.results = visitedMethods;
 		this.commit = commit;
 		this.testClass = fileName.toLowerCase().contains("test");
 	}
 	
-	public Map<String, Method> getResults() {
+	public Map<String, MethodTimeToTestInvoke> getResults() {
 		return Collections.synchronizedMap(this.results);
 	}
 	
@@ -57,7 +57,7 @@ public class MethodASTVisitor extends ASTVisitor {
 			if (identifier != null) {
 				synchronized (this.results) {
 					if (this.results.containsKey(identifier)) {
-						Method method = this.results.get(identifier);
+						MethodTimeToTestInvoke method = this.results.get(identifier);
 						Commit declared = method.getDeclared();
 						if (declared == null || this.commit.getDate().before(declared.getDate())) {
 							method.setDeclared(this.commit);
@@ -65,7 +65,7 @@ public class MethodASTVisitor extends ASTVisitor {
 						}
 					} else {
 						String name = node.getName().getIdentifier();
-						Method method = new Method(name, identifier);
+						MethodTimeToTestInvoke method = new MethodTimeToTestInvoke(name, identifier);
 						method.setDeclared(this.commit);
 						this.results.put(identifier, method);
 					}
@@ -88,7 +88,7 @@ public class MethodASTVisitor extends ASTVisitor {
 			if (identifier != null) {
 				synchronized (this.results) {
 					if (this.results.containsKey(identifier)) {
-						Method method = this.results.get(identifier);
+						MethodTimeToTestInvoke method = this.results.get(identifier);
 						if (this.testClass) {
 							Commit testInvoked = method.getTestInvoked();
 							if (testInvoked == null || this.commit.getDate().before(testInvoked.getDate())) {
@@ -98,7 +98,7 @@ public class MethodASTVisitor extends ASTVisitor {
 						}
 					} else {
 						String name = node.getName().getIdentifier();
-						Method method = new Method(name, identifier);
+						MethodTimeToTestInvoke method = new MethodTimeToTestInvoke(name, identifier);
 						if (this.testClass) {
 							method.setTestInvoked(this.commit);
 						}

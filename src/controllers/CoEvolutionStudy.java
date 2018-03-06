@@ -12,7 +12,7 @@ import org.repodriller.filter.range.Commits;
 import org.repodriller.persistence.csv.CSVFile;
 import org.repodriller.scm.GitRepository;
 
-import visitors.CoEvolutionVisitor;
+import visitors.commits.CoEvolutionVisitor;
 
 public class CoEvolutionStudy implements Study {
 

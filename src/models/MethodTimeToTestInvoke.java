@@ -5,7 +5,7 @@ import java.util.List;
 import org.repodriller.domain.Commit;
 import org.repodriller.domain.Modification;
 
-public class Method {
+public class MethodTimeToTestInvoke {
 
 	private Commit declared;
 	private Commit testInvoked;
@@ -19,7 +19,7 @@ public class Method {
 	private int cyclomaticComplexity;
 	private boolean presentInFinal;
 	
-	public Method(String name, String identifier) {
+	public MethodTimeToTestInvoke(String name, String identifier) {
 		this.name = name;
 		this.identifier = identifier;
 		this.cyclomaticComplexity = 1;

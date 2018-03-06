@@ -1,4 +1,4 @@
-package visitors;
+package visitors.ast;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
 import helpers.ASTHelper;
-import models.Method;
+import models.MethodTimeToTestInvoke;
 
 /**
  * Visits all nodes in the AST that contribute to
@@ -28,9 +28,9 @@ import models.Method;
  */
 public class ComplexityASTVisitor extends ASTVisitor {
 
-	private Map<String, Method> results;
+	private Map<String, MethodTimeToTestInvoke> results;
 
-	public ComplexityASTVisitor(Map<String, Method> visitedMethods) {
+	public ComplexityASTVisitor(Map<String, MethodTimeToTestInvoke> visitedMethods) {
 		this.results = visitedMethods;
 	}
 
@@ -99,11 +99,11 @@ public class ComplexityASTVisitor extends ASTVisitor {
 		String name = enclosingMethod.getName().getIdentifier();
 		if (identifier != null) {
 			if (this.results.containsKey(identifier)) {
-				Method method = this.results.get(identifier);
+				MethodTimeToTestInvoke method = this.results.get(identifier);
 				method.incrementCyclomaticComplexity();
 				this.results.put(identifier, method);
 			} else {
-				Method method = new Method(name, identifier);
+				MethodTimeToTestInvoke method = new MethodTimeToTestInvoke(name, identifier);
 				method.incrementCyclomaticComplexity();
 				this.results.put(identifier, method);
 			}

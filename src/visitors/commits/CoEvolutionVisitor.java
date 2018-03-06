@@ -1,4 +1,4 @@
-package visitors;
+package visitors.commits;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;

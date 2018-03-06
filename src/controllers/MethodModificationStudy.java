@@ -10,14 +10,16 @@ import org.repodriller.filter.commit.OnlyModificationsWithFileTypes;
 import org.repodriller.filter.commit.OnlyNoMerge;
 import org.repodriller.filter.diff.OnlyDiffsWithFileTypes;
 import org.repodriller.filter.range.Commits;
-
 import org.repodriller.persistence.csv.CSVFile;
 import org.repodriller.scm.CollectConfiguration;
+import org.repodriller.scm.CommitVisitor;
 import org.repodriller.scm.GitRepository;
 
+import visitors.ast.MethodModificationVisitor;
+import visitors.commits.MethodModificationCommitVisitor;
 import visitors.commits.SensorDataVisitor;
 
-public class SensorDataStudy implements Study {
+public class MethodModificationStudy implements Study {
 	
 	private String infile;
 	private String outfile;
@@ -34,7 +36,7 @@ public class SensorDataStudy implements Study {
 	 * @param outfile	The CSV output (will get overwritten if it already exists)
 	 * @param single	Is this study happening on one repo or many repos?
 	 */
-	public SensorDataStudy(String infile, String outfile, boolean single) {
+	public MethodModificationStudy(String infile, String outfile, boolean single) {
 		this.infile = infile;
 		this.outfile = outfile;
 		this.single = single;
@@ -47,7 +49,7 @@ public class SensorDataStudy implements Study {
 	 */
 	@Override
 	public void execute() {
-		SensorDataVisitor visitor = new SensorDataVisitor();
+		CommitVisitor visitor = new MethodModificationCommitVisitor();
 		RepositoryMining miner = new RepositoryMining();
 		miner = single ? 
 				miner.in(GitRepository.singleProject(this.infile)) :

@@ -1,4 +1,4 @@
-package visitors;
+package visitors.commits;
 
 import java.util.Collections;
 import java.util.Date;
@@ -16,15 +16,17 @@ import org.repodriller.scm.CommitVisitor;
 import org.repodriller.scm.SCMRepository;
 
 import helpers.ASTHelper;
-import models.Method;
+import models.MethodTimeToTestInvoke;
+import visitors.ast.ComplexityASTVisitor;
+import visitors.ast.MethodASTVisitor;
 
 public class SensorDataVisitor implements CommitVisitor {
 	
-	private Map<String, Method> visitedMethods;
+	private Map<String, MethodTimeToTestInvoke> visitedMethods;
 	
 	@Override
 	public void initialize(SCMRepository repo, PersistenceMechanism writer) {
-		this.visitedMethods = Collections.synchronizedMap(new HashMap<String, Method>());
+		this.visitedMethods = Collections.synchronizedMap(new HashMap<String, MethodTimeToTestInvoke>());
 	}
 	
 	/**

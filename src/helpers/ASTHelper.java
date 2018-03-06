@@ -5,9 +5,12 @@ import java.util.Map;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.SimpleName;
 
 public class ASTHelper {
 
@@ -79,5 +82,18 @@ public class ASTHelper {
 	 */
 	public static boolean methodIsNotPrivate(IMethodBinding binding) {
 		return (binding.getModifiers() & Modifier.PRIVATE) == 0;
+	}
+	
+	public static int getStartLine(MethodDeclaration node) {
+		SimpleName name = node.getName();
+		CompilationUnit cunit = (CompilationUnit) node.getRoot();
+		int methodStart = cunit.getLineNumber(name.getStartPosition());
+		return methodStart;
+	}
+	
+	public static int getEndLine(MethodDeclaration node) {
+		CompilationUnit cunit = (CompilationUnit) node.getRoot();
+		int methodEnd = cunit.getLineNumber(node.getStartPosition() + node.getLength());
+		return methodEnd;
 	}
 }
