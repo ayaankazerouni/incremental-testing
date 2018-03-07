@@ -2,7 +2,9 @@ package visitors.commits;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -15,15 +17,15 @@ import org.repodriller.scm.SCMRepository;
 import helpers.ASTHelper;
 import models.HunkHeader;
 import models.MethodModificationEvent;
-import visitors.ast.MethodModificationVisitor;
+import visitors.ast.MethodModificationASTVisitor;
 
-public class MethodModificationCommitVisitor implements CommitVisitor {
+public class MethodModificationVisitor implements CommitVisitor {
 	
-	private List<MethodModificationEvent> methodModifications;
+	private Set<MethodModificationEvent> methodModifications;
 	
 	@Override
 	public void initialize(SCMRepository repo, PersistenceMechanism writer) {
-		this.methodModifications = Collections.synchronizedList(new ArrayList<MethodModificationEvent>());
+		this.methodModifications = Collections.synchronizedSet(new HashSet<MethodModificationEvent>());
 	}
 	
 	@Override
@@ -35,7 +37,7 @@ public class MethodModificationCommitVisitor implements CommitVisitor {
 					List<HunkHeader> hunkHeaders = this.getHunkHeaders(mod.getDiff());
 					ASTParser parser = ASTHelper.createAndSetupParser(mod.getFileName(), mod.getSourceCode(), repo.getPath() + "/src");
 					CompilationUnit result = (CompilationUnit) parser.createAST(null);
-					MethodModificationVisitor visitor = new MethodModificationVisitor(hunkHeaders, commit, this.methodModifications);
+					MethodModificationASTVisitor visitor = new MethodModificationASTVisitor(hunkHeaders, commit, this.methodModifications, mod.getFileName());
 					result.accept(visitor);
 					
 					this.methodModifications = visitor.getResults();
@@ -58,7 +60,8 @@ public class MethodModificationCommitVisitor implements CommitVisitor {
 							dirName,
 							method.getMethodId(),
 							method.getModificationDate(),
-							method.getCommit()
+							method.getCommit(),
+							method.getType()
 					);
 				});
 		}

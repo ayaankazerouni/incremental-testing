@@ -50,4 +50,36 @@ public class MethodModificationEvent {
 	public void setType(Type type) {
 		this.type = type;
 	}
+	
+	@Override
+	public String toString() {
+		return "(" + this.methodId + ") at " + this.modTime + ", " + this.type;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		
+		if (this == obj) {
+			return true;
+		}
+		
+		MethodModificationEvent other = (MethodModificationEvent) obj;
+		
+		if (!this.getMethodId().equals(other.getMethodId())) {
+			return false;
+		}
+		
+		if (!this.getType().equals(other.getType())) {
+			return false;
+		}
+		
+		if (!this.getCommit().equals(other.getCommit())) {
+			return false;
+		}
+		
+		return true;
+	}
 }

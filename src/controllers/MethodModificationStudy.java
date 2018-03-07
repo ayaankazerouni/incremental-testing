@@ -15,7 +15,7 @@ import org.repodriller.scm.CollectConfiguration;
 import org.repodriller.scm.CommitVisitor;
 import org.repodriller.scm.GitRepository;
 
-import visitors.commits.MethodModificationCommitVisitor;
+import visitors.commits.MethodModificationVisitor;
 
 public class MethodModificationStudy implements Study {
 	
@@ -47,7 +47,8 @@ public class MethodModificationStudy implements Study {
 	 */
 	@Override
 	public void execute() {
-		CommitVisitor visitor = new MethodModificationCommitVisitor();
+		CommitVisitor visitor = new MethodModificationVisitor();
+		String[] header = new String[] { "project", "method_id", "time", "commit", "Type" };
 		RepositoryMining miner = new RepositoryMining();
 		miner = single ? 
 				miner.in(GitRepository.singleProject(this.infile)) :
@@ -63,7 +64,7 @@ public class MethodModificationStudy implements Study {
 			.visitorsAreThreadSafe(true)
 			.visitorsChangeRepoState(true)
 			.withThreads()
-			.process(visitor, new CSVFile(this.outfile))
+			.process(visitor, new CSVFile(this.outfile, header))
 			.mine();
 	}
 }
