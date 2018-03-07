@@ -15,9 +15,7 @@ import org.repodriller.scm.CollectConfiguration;
 import org.repodriller.scm.CommitVisitor;
 import org.repodriller.scm.GitRepository;
 
-import visitors.ast.MethodModificationVisitor;
 import visitors.commits.MethodModificationCommitVisitor;
-import visitors.commits.SensorDataVisitor;
 
 public class MethodModificationStudy implements Study {
 	

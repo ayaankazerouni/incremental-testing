@@ -1,15 +1,22 @@
 package models;
 
-public class MethodModification {
+public class MethodModificationEvent {
 
 	private String methodId;
 	private long modTime;
 	private String commit;
+	private Type type;
 	
-	public MethodModification(String methodId, long modTime, String commit) {
+	public enum Type {
+		MODIFY_SELF,
+		MODIFY_TESTING_METHOD
+	}
+	
+	public MethodModificationEvent(String methodId, long modTime, String commit, Type type) {
 		this.methodId = methodId;
 		this.modTime = modTime;
-		this.setCommit(commit);
+		this.commit = commit;
+		this.type = type;
 	}
 
 	public String getMethodId() {
@@ -35,6 +42,12 @@ public class MethodModification {
 	public void setCommit(String commit) {
 		this.commit = commit;
 	}
-	
-	
+
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
 }
