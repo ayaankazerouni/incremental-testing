@@ -93,7 +93,7 @@ public class ComplexityASTVisitor extends ASTVisitor {
 	}
 
 	private void visitMcCabeComplex(ASTNode node) {
-		MethodDeclaration enclosingMethod = this.getEnclosingMethod(node);
+		MethodDeclaration enclosingMethod = ASTHelper.getEnclosingMethod(node);
 		IMethodBinding binding = enclosingMethod.resolveBinding();
 		String identifier = ASTHelper.getUniqueMethodIdentifier(binding);
 		String name = enclosingMethod.getName().getIdentifier();
@@ -108,14 +108,5 @@ public class ComplexityASTVisitor extends ASTVisitor {
 				this.results.put(identifier, method);
 			}
 		}
-	}
-
-	private MethodDeclaration getEnclosingMethod(ASTNode node) {
-		ASTNode parentNode = node.getParent();
-		while (parentNode.getNodeType() != ASTNode.METHOD_DECLARATION) {
-			parentNode = parentNode.getParent();
-		}
-
-		return (MethodDeclaration) parentNode;
 	}
 }

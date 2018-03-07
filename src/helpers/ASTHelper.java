@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -95,5 +96,14 @@ public class ASTHelper {
 		CompilationUnit cunit = (CompilationUnit) node.getRoot();
 		int methodEnd = cunit.getLineNumber(node.getStartPosition() + node.getLength());
 		return methodEnd;
+	}
+	
+	public static MethodDeclaration getEnclosingMethod(ASTNode node) {
+		ASTNode parentNode = node.getParent();
+		while (parentNode.getNodeType() != ASTNode.METHOD_DECLARATION) {
+			parentNode = parentNode.getParent();
+		}
+
+		return (MethodDeclaration) parentNode;
 	}
 }
