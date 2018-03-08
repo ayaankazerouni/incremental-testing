@@ -56,8 +56,14 @@ public class MethodModificationVisitor implements CommitVisitor {
 				.forEach(method -> {
 					String[] splitPath = repo.getPath().split("/");
 					String dirName = splitPath[splitPath.length - 1];
+					String[] pieces = dirName.split("_");
+					String project = pieces[0];
+					String userName = pieces[1];
+					String assignment = pieces[2].replaceAll("(?!^)([0-9])", " $1 ").trim();
 					writer.write(
-							dirName,
+							project,
+							userName,
+							assignment,
 							method.getMethodId(),
 							method.getModificationDate(),
 							method.getCommit(),
