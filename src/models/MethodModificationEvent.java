@@ -6,6 +6,9 @@ public class MethodModificationEvent {
 	private long modTime;
 	private String commit;
 	private Type type;
+	private int added;
+	private int removed;
+	private int modsToMethod;
 	
 	public enum Type {
 		MODIFY_SELF,
@@ -51,6 +54,30 @@ public class MethodModificationEvent {
 		this.type = type;
 	}
 	
+	public int getModsToMethod() {
+		return modsToMethod;
+	}
+
+	public void setModsToMethod(int modsToMethod) {
+		this.modsToMethod = modsToMethod;
+	}
+	
+	public int getRemoved() {
+		return removed;
+	}
+
+	public void setRemoved(int removed) {
+		this.removed = removed;
+	}
+
+	public int getAdded() {
+		return added;
+	}
+
+	public void setAdded(int added) {
+		this.added = added;
+	}
+
 	@Override
 	public String toString() {
 		return "(" + this.methodId + ") at " + this.modTime + ", " + this.type;

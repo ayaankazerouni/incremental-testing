@@ -9,6 +9,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.repodriller.domain.Commit;
+import org.repodriller.domain.Modification;
 
 import helpers.ASTHelper;
 import models.HunkHeader;
@@ -21,6 +22,11 @@ public class MethodModificationASTVisitor extends ASTVisitor {
 	 * The current commit being visited.
 	 */
 	private Commit commit;
+	
+	/**
+	 * The modification being assessed
+	 */
+	private Modification modification;
 	
 	/**
 	 * A list of method modification events that will be emitted from this study.
@@ -37,11 +43,12 @@ public class MethodModificationASTVisitor extends ASTVisitor {
 	 */
 	private String fileName;
 	
-	public MethodModificationASTVisitor(List<HunkHeader> hunkHeaders, Commit commit, Set<MethodModificationEvent> results, String fileName) {
+	public MethodModificationASTVisitor(List<HunkHeader> hunkHeaders, Commit commit, Modification modification, Set<MethodModificationEvent> results) {
 		this.commit = commit;
 		this.hunkHeaders = hunkHeaders;
 		this.results = results;
-		this.fileName = fileName;
+		this.modification = modification;
+		this.fileName = modification.getFileName();
 	}
 	
 	public Set<MethodModificationEvent> getResults() {
@@ -54,16 +61,12 @@ public class MethodModificationASTVisitor extends ASTVisitor {
 	 */
 	public boolean visit(MethodDeclaration node) {
 		IMethodBinding binding = node.resolveBinding();
-		if (!fileName.toLowerCase().contains("test") && binding != null) {
+//		if (!fileName.toLowerCase().contains("test") && binding != null) {
+		if (binding != null) {
 			String methodId = ASTHelper.getUniqueMethodIdentifier(binding);
 			this.hunkHeaders.stream()
-				.filter(h -> this.hunkTouchedMethod(h, node))
 				.forEach(h -> {
-					long time  = commit.getDate().getTimeInMillis();
-					String hash = commit.getHash();
-					Type type = Type.MODIFY_SELF;
-					MethodModificationEvent mod = new MethodModificationEvent(methodId, time, hash, type);
-					this.results.add(mod);
+					this.recordMethodModificationEvent(methodId, h, node, Type.MODIFY_SELF);
 				});
 		}
 		
@@ -82,13 +85,8 @@ public class MethodModificationASTVisitor extends ASTVisitor {
 				MethodDeclaration enclosingMethod = ASTHelper.getEnclosingMethod(node);
 				if (enclosingMethod.getName().getIdentifier().startsWith("test")) {
 					this.hunkHeaders.stream()
-						.filter(h -> this.hunkTouchedMethod(h, enclosingMethod)) // the enclosing (test) method was modified in this commit
 						.forEach(h -> {
-							long time = commit.getDate().getTimeInMillis();
-							String hash = commit.getHash();
-							Type type = Type.MODIFY_TESTING_METHOD;
-							MethodModificationEvent mod = new MethodModificationEvent(methodId, time, hash, type);
-							this.results.add(mod);
+							this.recordMethodModificationEvent(methodId, h, enclosingMethod, Type.MODIFY_TESTING_METHOD);
 						});
 				}
 			}
@@ -97,14 +95,28 @@ public class MethodModificationASTVisitor extends ASTVisitor {
 		return super.visit(node);
 	}
 	
-	private boolean hunkTouchedMethod(HunkHeader header, MethodDeclaration method) {
+	private void recordMethodModificationEvent(String methodId, HunkHeader header, MethodDeclaration method, Type type) {
+		int modSize = this.getMethodMods(header, method);
+		if (modSize >= 0) {
+			long time = commit.getDate().getTimeInMillis();
+			String hash = commit.getHash();
+			MethodModificationEvent mod = new MethodModificationEvent(methodId, time, hash, type);
+			mod.setModsToMethod(modSize);
+			mod.setAdded(this.modification.getAdded());
+			mod.setRemoved(this.modification.getRemoved());
+			this.results.add(mod);
+		}
+	}
+	
+	private int getMethodMods(HunkHeader header, MethodDeclaration method) {
 		int startLine = ASTHelper.getStartLine(method);
 		int endLine = ASTHelper.getEndLine(method);
-		int oldStart = header.getOldStart();
-		int oldEnd = oldStart + header.getOldLineCount();
-		int newStart = header.getNewStart();
-		int newEnd = newStart + header.getNewLineCount();
+		int hunkStart = header.getNewStart();
+		int hunkEnd = hunkStart + header.getNewLineCount();
 		
-		return Math.max(startLine, newStart) <= Math.min(endLine, newEnd) || Math.max(startLine, oldStart) <= Math.min(newEnd, oldEnd);
+		int max = Math.max(endLine, hunkEnd);
+		int min = Math.min(startLine, hunkStart);
+
+		return max - min;
 	}
 }
