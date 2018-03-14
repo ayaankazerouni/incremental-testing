@@ -78,8 +78,9 @@ public class MethodModificationASTVisitor extends ASTVisitor {
 	 * Diff, emit a MODIFY_TESTING_METHOD event for this method.
 	 */
 	public boolean visit(MethodInvocation node) {
-		if (this.fileName.toLowerCase().contains("test")) {
-			String declaringClassName = node.resolveMethodBinding().getDeclaringClass().getQualifiedName();
+		IMethodBinding binding = node.resolveMethodBinding();
+		if (this.fileName.toLowerCase().contains("test") && binding != null) {
+			String declaringClassName = binding.getDeclaringClass().getQualifiedName();
 			if (!(declaringClassName.startsWith("java.") || declaringClassName.startsWith("javax."))) { // naively check that it's not a Java core method
 				String methodId = ASTHelper.getUniqueMethodIdentifier(node.resolveMethodBinding());
 				MethodDeclaration enclosingMethod = ASTHelper.getEnclosingMethod(node);
