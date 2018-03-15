@@ -61,8 +61,7 @@ public class MethodModificationASTVisitor extends ASTVisitor {
 	 */
 	public boolean visit(MethodDeclaration node) {
 		IMethodBinding binding = node.resolveBinding();
-//		if (!fileName.toLowerCase().contains("test") && binding != null) {
-		if (binding != null) {
+		if (!fileName.toLowerCase().contains("test") && binding != null) {
 			String methodId = ASTHelper.getUniqueMethodIdentifier(binding);
 			this.hunkHeaders.stream()
 				.forEach(h -> {
@@ -98,7 +97,7 @@ public class MethodModificationASTVisitor extends ASTVisitor {
 	
 	private void recordMethodModificationEvent(String methodId, HunkHeader header, MethodDeclaration method, Type type) {
 		int modSize = this.getMethodMods(header, method);
-		if (modSize >= 0) {
+		if (modSize > 0) {
 			long time = commit.getDate().getTimeInMillis();
 			String hash = commit.getHash();
 			MethodModificationEvent mod = new MethodModificationEvent(methodId, time, hash, type);
@@ -115,9 +114,9 @@ public class MethodModificationASTVisitor extends ASTVisitor {
 		int hunkStart = header.getNewStart();
 		int hunkEnd = hunkStart + header.getNewLineCount();
 		
-		int max = Math.max(endLine, hunkEnd);
-		int min = Math.min(startLine, hunkStart);
+		int start = Math.max(startLine, hunkStart);
+		int end = Math.min(endLine, hunkEnd);
 
-		return max - min;
+		return end - start;
 	}
 }
