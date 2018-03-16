@@ -49,7 +49,7 @@ public class MethodModificationStudy implements Study {
 	public void execute() {
 		CommitVisitor visitor = new MethodModificationVisitor();
 		String[] header = new String[] { "project", "userName", "assignment", 
-				"method_id", "time", "commit", "Type", "additions", "removals", "modsToMethod" };
+				"methodId", "time", "commitHash", "Type", "additions", "removals", "modsToMethod" };
 		RepositoryMining miner = new RepositoryMining();
 		miner = single ? 
 				miner.in(GitRepository.singleProject(this.infile)) :

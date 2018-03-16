@@ -47,6 +47,26 @@ public class SensorDataStudy implements Study {
 	 */
 	@Override
 	public void execute() {
+		String[] header = new String[] {
+				"project",
+				"userName",
+				"assignment",
+				"methodId",
+				"methodName",
+				"dateDeclared",
+				"dateTestInvoked",
+				"commitDeclared",
+				"commitTestInvoked",
+				"cyclomaticComplexity",
+				"solutionAdditions",
+				"solutionRemovals",
+				"testAdditions",
+				"testRemovals",
+				"additions",
+				"removals",
+				"filesChanged"
+		};
+		
 		SensorDataVisitor visitor = new SensorDataVisitor();
 		RepositoryMining miner = new RepositoryMining();
 		miner = single ? 
@@ -63,7 +83,7 @@ public class SensorDataStudy implements Study {
 			.visitorsAreThreadSafe(true)
 			.visitorsChangeRepoState(true)
 			.withThreads()
-			.process(visitor, new CSVFile(this.outfile))
+			.process(visitor, new CSVFile(this.outfile, header))
 			.mine();
 	}
 }

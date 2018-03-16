@@ -48,9 +48,9 @@ public class CoEvolutionVisitor implements CommitVisitor {
 				}
 				
 				if (mod.getFileName().toLowerCase().contains("test")) {
-					workSession.incrementalTestFiles(mod.getAdded());
+					workSession.incrementTestChanges(mod.getAdded() + mod.getRemoved());
 				} else {
-					workSession.incrementProductionFiles(mod.getAdded());
+					workSession.incrementSolutionChanges(mod.getAdded() + mod.getRemoved());
 				}
 				
 				this.lastTime = time;
@@ -69,7 +69,7 @@ public class CoEvolutionVisitor implements CommitVisitor {
 			String[] project = pathSplit[pathSplit.length - 1].split("_");
 			String projectUuid = project[0];
 			String userId = project[1];
-			String assignment = project[2];
+			String assignment = project[2].replaceAll("(?!^)([0-9])", " $1 ").trim();
 			this.workDone.entrySet().stream()
 			.forEach(e -> {
 				WorkSession workSession = e.getValue();
@@ -78,8 +78,8 @@ public class CoEvolutionVisitor implements CommitVisitor {
 					userId,
 					assignment,
 					e.getKey(),
-					workSession.getTestFiles(),
-					workSession.getProductionFiles(),
+					workSession.getTestChanges(),
+					workSession.getSolutionChanges(),
 					workSession.getStartTime().getTimeInMillis(),
 					workSession.getEndTime().getTimeInMillis()
 				);

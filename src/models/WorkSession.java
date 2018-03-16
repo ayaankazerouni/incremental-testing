@@ -14,19 +14,19 @@ public class WorkSession {
 		this.endTime = null;
 	}
 	
-	public int getTestFiles() {
+	public int getTestChanges() {
 		return testFiles;
 	}
 	
-	public void incrementalTestFiles(int delta) {
+	public void incrementTestChanges(int delta) {
 		this.testFiles += delta;
 	}
 	
-	public int getProductionFiles() {
+	public int getSolutionChanges() {
 		return productionFiles;
 	}
 	
-	public void incrementProductionFiles(int delta) {
+	public void incrementSolutionChanges(int delta) {
 		this.productionFiles += delta;
 	}
 	

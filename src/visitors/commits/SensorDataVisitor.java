@@ -108,8 +108,14 @@ public class SensorDataVisitor implements CommitVisitor {
 					int filesChanged = m.getFilesChanged();
 					String[] splitPath = repo.getPath().split("/");
 					String dirName = splitPath[splitPath.length - 1];
+					String[] pieces = dirName.split("_");
+					String project = pieces[0];
+					String userName = pieces[1];
+					String assignment = pieces[2].replaceAll("(?!^)([0-9])", " $1 ").trim();
 					writer.write(
-							dirName,
+							project,
+							userName,
+							assignment,
 							m.getIdentifier(),
 							m.getName(),
 							declared,

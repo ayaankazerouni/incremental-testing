@@ -28,6 +28,7 @@ public class CoEvolutionStudy implements Study {
 	
 	@Override
 	public void execute() {
+		String[] header = new String[] { "project", "userName", "assignment", "workSessionId", "testEditSizeStmt", "editSizeStmt", "startTime", "endTime" };
 		CoEvolutionVisitor visitor = new CoEvolutionVisitor();
 		RepositoryMining miner = new RepositoryMining();
 		miner = single ?
@@ -40,7 +41,7 @@ public class CoEvolutionStudy implements Study {
 				new OnlyInBranches(Arrays.asList("master"))
 			)
 			.setRepoTmpDir(Paths.get("/tmp/"))
-			.process(visitor, new CSVFile(this.outfile))
+			.process(visitor, new CSVFile(this.outfile, header))
 			.mine();
 	}
 
