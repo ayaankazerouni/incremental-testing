@@ -1,3 +1,5 @@
+#! /usr/bin/env Rscript
+
 require(dplyr)
 require(tibble)
 require(stringr)
