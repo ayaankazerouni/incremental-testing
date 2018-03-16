@@ -18,69 +18,56 @@ getLaunchData = function(sensordata.path='data/fall-2016/cs3114-sensordata.csv')
 }
 
 getMethodModifications = function(methodmods.path='~/Desktop/event-stream.csv') {
-  methodmods = fread('~/Desktop/event-stream.csv')
-  methodmods = methodmods %>% rowwise() %>%
-    mutate(pieces = str_split(project, "_")) %>%
-    mutate(
-      project = pieces[1],
-      userName = pieces[2],
-      assignment = str_replace_all(pieces[3], "([:digit:])", " \\1"),
-      pieces = NULL,
-      time = as.numeric(time)
-    ) %>%
-    rename(commitHash = commit)
+  methodmods = fread(methodmods.path)
+  methodmods = methodmods %>%
+    mutate(time = as.numeric(time)) # so that it can be merged with sensordata
   return(methodmods)
-}
-getEventStream = function(launchdata, methodmods, file) {
-  if(!is.null(file)) {
-    events = fread(file = file) %>%
-      group_by(userName, assignment)
-  } else if (!is.null(launchdata) & !is.null(methodmods)) {
-    events = bind_rows(methodmods, launchdata) %>%
-      arrange(userName, assignment, time) %>%
-      group_by(userName, assignment)
-  } else {
-    stop("Specify file OR (launchdata AND methodmods).")
-  }
-  return(events)
-}
-events = getEventStream(file = "~/Desktop/event-stream.csv")
-head(events)
-getEventStream = function(launchdata, methodmods, file) {
-  if (is.null(file) & is.null(launchdata) & is.null(methodmods)) {
-    stop("Specify file | launchdata | methodmods")
-  }
-  if(!is.null(file)) {
-    events = fread(file = file) %>%
-      group_by(userName, assignment)
-  } else if (!is.null(launchdata) & is.null(methodmods)) {
-    events = launchdata %>% group_by(userName, assignment)
-  } else if (is.null(launchdata) & !is.null(methodmods)) {
-    events = methodmods %>% group_by(userName, assignment)
-  } else (!is.null(launchdata) & !is.null(methodmods)) {
-    events = bind_rows(methodmods, launchdata) %>%
-      arrange(userName, assignment, time) %>%
-      group_by(userName, assignment)
-  }
-  return(events)
 }
 
 getEventStream = function(launchdata, methodmods, file) {
-  if (is.null(file) & is.null(launchdata) & is.null(methodmods)) {
-    stop("Specify file | launchdata | methodmods")
+  if (!is.null(file)) {
+    events = fread(file = file) %>% arrange(userName, assignment, time)
   }
-  
-  if(!is.null(file)) {
-    events = fread(file = file) %>%
-      group_by(userName, assignment)
-  } else if (!is.null(launchdata) & is.null(methodmods)) {
-    events = launchdata %>% group_by(userName, assignment)
-  } else if (is.null(launchdata) & !is.null(methodmods)) {
-    events = methodmods %>% group_by(userName, assignment)
-  } else {
+  else if (!is.null(launchdata) & !is.null(methodmods)) {
     events = bind_rows(methodmods, launchdata) %>%
       arrange(userName, assignment, time)
+  } else {
+    stop('Please pass launchdata and methodmods, or a file path.')
   }
   
   return(events)
+}
+
+computeMethodCoevolution = function(eventStream) {
+  eventStream %>% computeWorkSessions() %>%
+    group_by(wsId, methodId) %>%
+      summarise(
+        changes = sum(modsToMethod[Type == 'MODIFY_SELF']), 
+        changes.test = sum(modsToMethod[Type == 'MODIFY_TESTING_METHOD'])
+      ) %>%
+    mutate(
+      balance.inWs = changes.test / (changes + changes.test),
+      changes = NULL,
+      changes.test = NULL
+    ) %>% 
+    group_by(methodId) %>%
+      summarise(balance.mean = mean(balance.inWs), balance.median = median(balance.inWs)) %>%
+    summarise(methodBalance = mean(balance.mean))
+}
+
+computeProjectCoevolution = function(eventStream) {
+  eventStream %>% 
+    mutate(wsCoevolution = testEditSizeStmt / (editSizeStmt + testEditSizeStmt)) %>%
+    summarise(coevolution = mean(wsCoevolution))
+}
+
+computeWorkSessions = function(eventStream) {
+  eventStream %>% 
+    arrange(time) %>%
+    mutate(
+      time = as.integer(time / 1000),
+      gap = c(0, diff(time) >= 3600),
+      wsId = as.factor(cumsum(gap)),
+      gap = NULL
+    )
 }

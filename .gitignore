@@ -33,3 +33,10 @@ extras/*repos/
 # node_modules
 node_modules/
 /bin/
+
+# R stuff
+*.Rproj*
+*.RData
+
+# no python extras
+__pycache__/
