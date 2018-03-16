@@ -3,10 +3,9 @@
 require(dplyr)
 require(tibble)
 require(stringr)
-require(data.table)
 
 getLaunchData = function(sensordata.path='data/fall-2016/cs3114-sensordata.csv') {
-  launchdata = fread(launchdata.path)
+  launchdata = data.table::fread(launchdata.path)
   launchdata = launchdata %>% filter(Type == 'Launch') %>%
     select(userId, email, CASSIGNMENTNAME, time, Type, Subtype, LaunchType) %>%
     mutate(
@@ -20,7 +19,7 @@ getLaunchData = function(sensordata.path='data/fall-2016/cs3114-sensordata.csv')
 }
 
 getMethodModifications = function(methodmods.path='~/Desktop/event-stream.csv') {
-  methodmods = fread(methodmods.path)
+  methodmods = data.table::fread(methodmods.path)
   methodmods = methodmods %>%
     mutate(time = as.numeric(time)) # so that it can be merged with sensordata
   return(methodmods)
@@ -28,7 +27,7 @@ getMethodModifications = function(methodmods.path='~/Desktop/event-stream.csv') 
 
 getEventStream = function(launchdata, methodmods, file) {
   if (!is.null(file)) {
-    events = fread(file = file) %>% arrange(userName, assignment, time)
+    events = data.table::fread(file = file) %>% arrange(userName, assignment, time)
   }
   else if (!is.null(launchdata) & !is.null(methodmods)) {
     events = bind_rows(methodmods, launchdata) %>%
@@ -86,4 +85,20 @@ computeWorkBeforeTestCreation = function(eventStream) {
       avgAdditions = mean(additions, na.rm = T),
       avgRemovals = mean(removals, na.rm = T)
     )
+}
+
+computeAverageRecency = function(eventStream) {
+  eventStream %>% arrange(methodId, time) %>%
+    group_by(methodId) %>%
+      mutate(
+        methodStart = first(time, order_by = time),
+        methodEnd = last(time, order_by = time),
+        mappedTime = linMap(time, methodStart, methodEnd)
+      ) %>%
+      summarise(averageRecency = mean(mappedTime[Type == 'MODIFY_TESTING_METHOD'])) %>%
+    summarise(averageRecency = mean(averageRecency, na.rm = TRUE))
+}
+
+linMap = function(x, domainMin, domainMax) {
+  (x - domainMin) / (domainMax - domainMin)
 }
