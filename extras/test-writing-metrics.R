@@ -71,3 +71,17 @@ computeWorkSessions = function(eventStream) {
       gap = NULL
     )
 }
+
+computeWorkBeforeTestCreation = function(eventStream) {
+  eventStream %>%
+    mutate(commitTestInvoked = as.character(commitTestInvoked), commitDeclared = as.character(commitDeclared)) %>%
+    filter(commitTestInvoked != commitDeclared) %>%
+    summarise(
+      avgTestAdditions = mean(testAdditions, na.rm = T),
+      avgTestRemovals = mean(testRemovals, na.rm = T),
+      avgSolutionAdditions = mean(solutionAdditions, na.rm = T),
+      avgSolutionRemovals = mean(solutionRemovals, na.rm = T),
+      avgAdditions = mean(additions, na.rm = T),
+      avgRemovals = mean(removals, na.rm = T)
+    )
+}
