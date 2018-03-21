@@ -39,8 +39,10 @@ getEventStream = function(launchdata, methodmods, file) {
   return(events)
 }
 
+# allEvents %>% group_by(userName, assignment) %>% do(computeMethodCoevolution(.))
 computeMethodCoevolution = function(eventStream) {
-  eventStream %>% computeWorkSessions() %>%
+  eventStream %>% 
+    computeWorkSessions() %>%
     group_by(wsId, methodId) %>%
       summarise(
         changes = sum(modsToMethod[Type == 'MODIFY_SELF']), 
@@ -56,6 +58,7 @@ computeMethodCoevolution = function(eventStream) {
     summarise(methodBalance = mean(balance.mean))
 }
 
+# allEvents %>% group_by(userName, assignment) %>% computeProjectCoevolution()
 computeProjectCoevolution = function(eventStream) {
   eventStream %>% 
     mutate(wsCoevolution = testEditSizeStmt / (editSizeStmt + testEditSizeStmt)) %>%
@@ -73,10 +76,10 @@ computeWorkSessions = function(eventStream) {
     )
 }
 
+# allEvents %>% group_by(userName, assignment) %>% computeWorkBeforeTestCreation
 computeWorkBeforeTestCreation = function(eventStream) {
   eventStream %>%
     mutate(commitTestInvoked = as.character(commitTestInvoked), commitDeclared = as.character(commitDeclared)) %>%
-    filter(commitTestInvoked != commitDeclared) %>%
     summarise(
       avgTestAdditions = mean(testAdditions, na.rm = T),
       avgTestRemovals = mean(testRemovals, na.rm = T),
@@ -87,16 +90,26 @@ computeWorkBeforeTestCreation = function(eventStream) {
     )
 }
 
+# allEvents %>% group_by(userName, assignment) %>% do(computeAverageRecency(.))
 computeAverageRecency = function(eventStream) {
   eventStream %>% arrange(methodId, time) %>%
     group_by(methodId) %>%
       mutate(
-        methodStart = first(time, order_by = time),
-        methodEnd = last(time, order_by = time),
-        mappedTime = linMap(time, methodStart, methodEnd)
+        startTime = first(time, order_by = time),
+        endTime = last(time, order_by = time),
+        endEdit = sum(modsToMethod),
+        changeLinePos = cumsum(modsToMethod),
+        mappedTime = linMap(time, startTime, endTime),
+        mappedLineTime = linMap(changeLinePos, 0, endEdit)
       ) %>%
-      summarise(averageRecency = mean(mappedTime[Type == 'MODIFY_TESTING_METHOD'])) %>%
-    summarise(averageRecency = mean(averageRecency, na.rm = TRUE))
+      summarise(
+        averageRecency = mean(mappedTime[Type == 'MODIFY_TESTING_METHOD']),
+        lineRecency = mean(mappedLineTime[Type == 'MODIFY_TESTING_METHOD'])
+      ) %>%
+    summarise(
+      averageRecency = mean(averageRecency, na.rm = TRUE),
+      lineRecency = mean(lineRecency, na.rm = TRUE)
+    )
 }
 
 linMap = function(x, domainMin, domainMax) {
