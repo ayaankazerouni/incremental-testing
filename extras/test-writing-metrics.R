@@ -79,14 +79,20 @@ computeWorkSessions = function(eventStream) {
 # allEvents %>% group_by(userName, assignment) %>% computeWorkBeforeTestCreation
 computeWorkBeforeTestCreation = function(eventStream) {
   eventStream %>%
-    mutate(commitTestInvoked = as.character(commitTestInvoked), commitDeclared = as.character(commitDeclared)) %>%
+    mutate(
+      commitTestInvoked = as.character(commitTestInvoked),
+      commitDeclared = as.character(commitDeclared),
+      dateDeclared = as.integer(dateDeclared / 1000), # to seconds
+      dateTestInvoked = as.integer(dateTestInvoked / 1000) # to seconds
+    ) %>%
     summarise(
       avgTestAdditions = mean(testAdditions, na.rm = T),
       avgTestRemovals = mean(testRemovals, na.rm = T),
       avgSolutionAdditions = mean(solutionAdditions, na.rm = T),
       avgSolutionRemovals = mean(solutionRemovals, na.rm = T),
       avgAdditions = mean(additions, na.rm = T),
-      avgRemovals = mean(removals, na.rm = T)
+      avgRemovals = mean(removals, na.rm = T),
+      timeInterval = mean((dateTestInvoked - dateDeclared) / 3600) # difference in hours
     )
 }
 

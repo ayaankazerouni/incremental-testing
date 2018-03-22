@@ -32,8 +32,9 @@ p124 = all %>% filter(assignment %in% c('Project 1', 'Project 2', 'Project 4'))
 **Sequence or order of test-code and solution-code writing**:
 
 * Average recency (`t.rec`) -- For each method's timeline, approximately when were changes made to relevant test code?
-* Line recency (`l.rec`) -- If all changes made to a method are placed in a line, where in that sequence to changes to relevant test code fall?
-* Additions before relevant test creation (`tc`) -- How much work was done between defining a method and writing the first test code for the method?
+* Line recency (`l.rec`) -- If all changes related to a method are placed in a line, where in that sequence to changes to relevant test code fall?
+* How much work was done between defining a method and writing the first test code for the method? In terms of code additions: (`tc`)
+* How much work was done between defining a method and writing the first test code for the method? In terms of time: (`tc.time`)
 
 ## Analysis
 
@@ -52,10 +53,10 @@ p124 = all %>% filter(assignment %in% c('Project 1', 'Project 2', 'Project 4'))
 **Model estimates**
 
 ```{r include=FALSE}
-m.124.correctness = step(lmer(score.reftest ~ mc + tc + pc + l.rec + t.rec + (1 | userName), 
+m.correctness = step(lmer(score.reftest ~ mc + tc + pc + l.rec + t.rec + tc.time + (1 | userName), 
                               data = p124, REML = F), reduce.random = F)$model
-r1 = r2.corr.mer(m.124.correctness) * 100
-s1 = summary(m.124.correctness)
+r1 = r2.corr.mer(m.correctness) * 100
+s1 = summary(m.correctness)
 ```
 
 ```{r echo=FALSE}
@@ -66,14 +67,6 @@ Significant contributors are *overall balance of test and solution code* (`mc`),
 
 These three measures explain `r round(r1, digits = 2)`% of the variance in external quality.
 
-**Result summary in English:** 
-
-Subjects produced *more semantically correct* programs when:
-
-1. They maintained a balance of relevant test-code writing and solution-code writing (higher values for `mc`)
-2. They wrote relevant test-code after relatively fewer changes to solution code (lower values for `l.rec`)
-3. They wrote relevant test-code after relatively *more* time had passed since the writing of solution code (higher values for `t.rec`). 
-
 I can't really explain the existence of results 2 and 3. I would need to think about it some more.
 
 #### Internal quality (code coverage)
@@ -81,10 +74,10 @@ I can't really explain the existence of results 2 and 3. I would need to think a
 **Model estimates**
 
 ```{r include=FALSE}
-m.124.coverage = step(lmer(elementsCovered ~ mc + tc + pc + l.rec + t.rec + (1 | userName), 
+m.coverage = step(lmer(elementsCovered ~ mc + tc + pc + l.rec + t.rec + tc.time + (1 | userName), 
                               data = p124, REML = F), reduce.random = F)$model
-r2 = r2.corr.mer(m.124.coverage) * 100
-s2 = summary(m.124.coverage)
+r2 = r2.corr.mer(m.coverage) * 100
+s2 = summary(m.coverage)
 ```
 
 ```{r echo=FALSE}
@@ -94,9 +87,3 @@ s2$coefficients
 Only significant contributor is *overall balance of test and solution code* (`pc`).
 
 This measure explains `r round(r2, digits = 2)`% of the variance in internal quality.
-
-**Result summary in English:** 
-
-Subjects produced test suites with *higher conditional coverage* when:
-
-1. They maintained an overall balance of test-code writing and solution-code writing (higher values for `pc`)
