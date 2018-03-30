@@ -40,29 +40,58 @@ getEventStream = function(launchdata, methodmods, file) {
 }
 
 # allEvents %>% group_by(userName, assignment) %>% do(computeMethodCoevolution(.))
-computeMethodCoevolution = function(eventStream) {
-  eventStream %>% 
-    computeWorkSessions() %>%
-    group_by(wsId, methodId) %>%
-      summarise(
-        changes = sum(modsToMethod[Type == 'MODIFY_SELF']), 
-        changes.test = sum(modsToMethod[Type == 'MODIFY_TESTING_METHOD'])
+computeMethodCoevolution = function(eventStream, inWs=TRUE) {
+  methods = eventStream %>% computeMethodTestingEffort()
+  lowerbound = quantile(methods$testing.effort, 0.4)
+  
+  if (inWs) {
+    methodWs = eventStream %>% 
+      computeWorkSessions() %>%
+      right_join(methods, by = "methodId") %>%
+      filter(testing.effort > lowerbound) %>%
+      group_by(wsId, methodId) %>%
+        summarise(
+          changes = sum(modsToMethod[Type == 'MODIFY_SELF']), 
+          changes.test = sum(modsToMethod[Type == 'MODIFY_TESTING_METHOD'])
+        ) %>%
+      mutate(
+        balance.inWs = changes.test / (changes + changes.test)
       ) %>%
-    mutate(
-      balance.inWs = changes.test / (changes + changes.test),
-      changes = NULL,
-      changes.test = NULL
-    ) %>% 
+      group_by(methodId) %>%
+        summarise(balance.median = median(balance.inWs)) %>%
+      summarise(methodBalance.inWs.median = median(balance.median))
+  } else {
+    balance = methods %>% 
+      filter(testing.effort > lowerbound) %>%
+      summarise(methodBalance.median = median(testing.effort))
+    
+    return(balance)
+  }
+}
+
+computeMethodTestingEffort = function(eventStream) {
+  eventStream %>% 
     group_by(methodId) %>%
-      summarise(balance.mean = mean(balance.inWs), balance.median = median(balance.inWs)) %>%
-    summarise(methodBalance = mean(balance.mean))
+      summarise(
+        changes = sum(modsToMethod[Type == 'MODIFY_SELF']),
+        changes.test = sum(modsToMethod[Type == 'MODIFY_TESTING_METHOD'])
+      ) %>% 
+      mutate(
+        testing.effort = changes.test / (changes + changes.test)
+      )
 }
 
 # allEvents %>% group_by(userName, assignment) %>% computeProjectCoevolution()
 computeProjectCoevolution = function(eventStream) {
   eventStream %>% 
     mutate(wsCoevolution = testEditSizeStmt / (editSizeStmt + testEditSizeStmt)) %>%
-    summarise(coevolution = mean(wsCoevolution))
+    summarise(
+      meanCoevolution = mean(wsCoevolution),
+      medianCoevolution = median(wsCoevolution),
+      skewCoevolution = (3 * (meanCoevolution - medianCoevolution)) / sd(wsCoevolution),
+      projectWideRatio = sum(testEditSizeStmt) / (sum(testEditSizeStmt) + sum(editSizeStmt)),
+      numWs = n()
+    )
 }
 
 computeWorkSessions = function(eventStream) {
@@ -120,4 +149,23 @@ computeAverageRecency = function(eventStream) {
 
 linMap = function(x, domainMin, domainMax) {
   (x - domainMin) / (domainMax - domainMin)
+}
+
+filterMethods = function(eventStream) {
+  eventStream %>% rowwise() %>% 
+    mutate(
+      pieces = str_split(methodId, ","),
+      className = pieces[1],
+      methodName = pieces[2],
+      pieces = NULL
+    ) %>%
+    filter(
+      !startsWith(methodName, "get"), # getters
+      !startsWith(methodName, "set"), # setters
+      methodName != className, # constructors
+      is.na(str_extract(methodName, "print")), # printers
+      is.na(str_extract(methodName, "dump")), # printers
+      methodName != "toString", # printers
+      methodName != "main" # main method
+    )
 }
