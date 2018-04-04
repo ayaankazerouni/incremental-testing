@@ -147,6 +147,20 @@ computeAverageRecency = function(eventStream) {
     )
 }
 
+computeTestFirstBalance = function(eventStream) {
+  eventStream %>% arrange(methodId, desc(Type), time) %>%
+    group_by(methodId) %>%
+      mutate(
+        finalisedTime = last(time)
+      ) %>%
+      summarise(
+        testFirst = sum(modsToMethod[Type == 'MODIFY_TESTING_METHOD' & time < finalisedTime], na.rm = T),
+        testLast = sum(modsToMethod[Type == 'MODIFY_TESTING_METHOD' & time >= finalisedTime], na.rm = T)
+      ) %>%
+    mutate(testFirstBalance = testFirst / (testFirst + testLast)) %>%
+    summarise(testFirstBalance = mean(testFirstBalance, na.rm = T), testFirstMedian = median(testFirstBalance, na.rm = T))
+}
+
 linMap = function(x, domainMin, domainMax) {
   (x - domainMin) / (domainMax - domainMin)
 }
