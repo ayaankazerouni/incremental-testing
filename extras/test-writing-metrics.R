@@ -47,7 +47,7 @@ computeMethodCoevolution = function(eventStream, inWs=TRUE) {
   if (inWs) {
     methodWs = eventStream %>% 
       computeWorkSessions() %>%
-      right_join(methods, by = "methodId") %>%
+      right_join(methods, by = "methodId") %>% # only needed to filter out least-tested methods
       filter(testing.effort > lowerbound) %>%
       group_by(wsId, methodId) %>%
         summarise(
@@ -147,6 +147,7 @@ computeAverageRecency = function(eventStream) {
     )
 }
 
+# allEvents %>% group_by(userName, assignment) %>% do(computeTestFirstBalance(.))
 computeTestFirstBalance = function(eventStream) {
   eventStream %>% arrange(methodId, desc(Type), time) %>%
     group_by(methodId) %>%
@@ -182,4 +183,16 @@ filterMethods = function(eventStream) {
       methodName != "toString", # printers
       methodName != "main" # main method
     )
+}
+
+# Given a method-modification event stream, calculate the number 
+# of methods that were directly invoked in tests.
+getDirectCoverage = function(eventStream) {
+  eventStream %>%
+    group_by(methodId) %>%
+      summarise(
+        countProd = length(commitHash[Type == 'MODIFY_SELF']), 
+        countTest = length(commitHash[Type == 'MODIFY_TESTING_METHOD'])
+      ) %>%
+    summarise(directlyCovered = length(methodId[countTest > 0]) / n())
 }
