@@ -27,8 +27,7 @@ hs_err_pid*
 /target/
 
 # student repositories
-extras/*csv
-extras/*repos/
+**/data/
 
 # node_modules
 node_modules/
@@ -41,3 +40,4 @@ node_modules/
 # no python extras
 __pycache__/
 .Rproj.user
+.Rhistory
