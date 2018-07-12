@@ -7,9 +7,10 @@
 # BlueJ files
 *.ctxt
 
-# Eclipse files
+# IDE/editor files
 .settings/
 .project
+**/.vscode
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -36,8 +37,12 @@ node_modules/
 # R stuff
 *.Rproj*
 *.RData
+**/.Rproj.user
+**/.Rhistory
 
 # no python extras
 __pycache__/
+analysis/env
 .Rproj.user
-.Rhistory
+.needspull 
+.repo
