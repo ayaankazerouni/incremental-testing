@@ -1,6 +1,4 @@
-# Measuring incremental testing
-
-Repo for work done on part of my PhD research and CS 5704 Software Engineering project.
+# incremental-testing
 
 Mining software repositories from student code to assess incremental development and testing practices.
 
