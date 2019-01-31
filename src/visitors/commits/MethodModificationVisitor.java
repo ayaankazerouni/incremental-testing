@@ -76,7 +76,7 @@ public class MethodModificationVisitor implements CommitVisitor {
                 String assignment = pieces[2].replaceAll("(?!^)([0-9])", " $1 ").trim();
                 writer.write(project, userName, assignment, method.getMethodId(), method.getModificationDate(),
                         method.getCommit(), method.getType(), method.getAdded(), method.getRemoved(),
-                        method.getModsToMethod());
+                        method.getModsToMethod(), method.getTestMethodId());
             });
         }
     }
