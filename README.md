@@ -2,9 +2,6 @@
 
 Mining software repositories from student code to assess incremental development and testing practices.
 
-Thanks to [mauricioaniche](https://github.com/mauricioaniche/) for his work on [RepoDriller](https://github.com/mauricioaniche/repodriller).
-This work depends on a particular branch from my fork of RepoDriller on GitHub: [ayaankazerouni/repodriller:sigcse-2019](https://github.com/ayaankazerouni/repodriller/tree/sigcse-2019) (see [mauricioaniche/repodriller#128](https://github.com/mauricioaniche/repodriller/issues/128)).
-
 This work will soon be published:
 * Ayaan M. Kazerouni, Clifford A. Shaffer, Stephen H. Edwards, Francisco Servant. [*Assessing Incremental Testing Practices and Their Impact on Project Outcomes*](http://people.cs.vt.edu/~ayaan/assets/publications/Assessing_Incremental_Testing_Practices_and_Their_Impact_on_Project_Outcomes.pdf). SIGCSE Technical Symposium. 2019.
 
@@ -21,6 +18,8 @@ There are two parts in this repository. The first part, under the [src/](src) di
 * Emit events containing the information gleaned from each commit
 
 We therefore *expand* the raw Git history (commits) into a method-modification stream of events.
+
+Repository mining was carried out using [RepoDriller](https://github.com/mauricioaniche/repodriller). This work depends on a particular branch from my fork of RepoDriller on GitHub: [ayaankazerouni/repodriller:sigcse-2019](https://github.com/ayaankazerouni/repodriller/tree/sigcse-2019) (see [mauricioaniche/repodriller#128](https://github.com/mauricioaniche/repodriller/issues/128)).
 
 ### Analysis
 The events described above were further broken down using R, for further analysis. The code is in the [analysis/](analysis) directory.
