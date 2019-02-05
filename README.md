@@ -3,7 +3,7 @@
 Mining software repositories from student code to assess incremental development and testing practices.
 
 This work will soon be published:
-* Ayaan M. Kazerouni, Clifford A. Shaffer, Stephen H. Edwards, Francisco Servant. [*Assessing Incremental Testing Practices and Their Impact on Project Outcomes*](http://people.cs.vt.edu/~ayaan/assets/publications/Assessing_Incremental_Testing_Practices_and_Their_Impact_on_Project_Outcomes.pdf). SIGCSE Technical Symposium. 2019.
+* Ayaan M. Kazerouni, Clifford A. Shaffer, Stephen H. Edwards, Francisco Servant. [*Assessing Incremental Testing Practices and Their Impact on Project Outcomes*](http://people.cs.vt.edu/~ayaan/assets/publications/assessing-incremental-testing.pdf). SIGCSE Technical Symposium. 2019.
 
 ## Description
 
