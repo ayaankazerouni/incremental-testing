@@ -2,7 +2,7 @@
 
 Mining software repositories from student code to assess incremental development and testing practices.
 
-This work will soon be published:
+More details in the paper:
 * Ayaan M. Kazerouni, Clifford A. Shaffer, Stephen H. Edwards, Francisco Servant. [*Assessing Incremental Testing Practices and Their Impact on Project Outcomes*](http://people.cs.vt.edu/~ayaan/assets/publications/assessing-incremental-testing.pdf). SIGCSE Technical Symposium. 2019.
 
 ## Description
