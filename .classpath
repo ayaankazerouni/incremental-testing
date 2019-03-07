@@ -1,22 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
-		<attributes>
-			<attribute name="module" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry including="**/*.java" kind="src" output="target/classes" path="src">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry excluding="**/*.java" kind="src" path="src/main/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/jdt/org.eclipse.jdt.core/3.12.3/org.eclipse.jdt.core-3.12.3.jar" sourcepath="M2_REPO/org/eclipse/jdt/org.eclipse.jdt.core/3.12.3/org.eclipse.jdt.core-3.12.3-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.core.resources/3.13.200/org.eclipse.core.resources-3.13.200.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.core.resources/3.13.200/org.eclipse.core.resources-3.13.200-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.core.expressions/3.6.200/org.eclipse.core.expressions-3.6.200.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.core.expressions/3.6.200/org.eclipse.core.expressions-3.6.200-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.core.runtime/3.15.100/org.eclipse.core.runtime-3.15.100.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.core.runtime/3.15.100/org.eclipse.core.runtime-3.15.100-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.osgi/3.13.200/org.eclipse.osgi-3.13.200.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.osgi/3.13.200/org.eclipse.osgi-3.13.200-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.equinox.common/3.10.200/org.eclipse.equinox.common-3.10.200.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.equinox.common/3.10.200/org.eclipse.equinox.common-3.10.200-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.core.jobs/3.10.200/org.eclipse.core.jobs-3.10.200.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.core.jobs/3.10.200/org.eclipse.core.jobs-3.10.200-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.equinox.registry/3.8.200/org.eclipse.equinox.registry-3.8.200.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.equinox.registry/3.8.200/org.eclipse.equinox.registry-3.8.200-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.equinox.preferences/3.7.200/org.eclipse.equinox.preferences-3.7.200.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.equinox.preferences/3.7.200/org.eclipse.equinox.preferences-3.7.200-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.core.contenttype/3.7.200/org.eclipse.core.contenttype-3.7.200.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.core.contenttype/3.7.200/org.eclipse.core.contenttype-3.7.200-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.equinox.app/1.4.0/org.eclipse.equinox.app-1.4.0.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.equinox.app/1.4.0/org.eclipse.equinox.app-1.4.0-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.core.filesystem/1.7.200/org.eclipse.core.filesystem-1.7.200.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.core.filesystem/1.7.200/org.eclipse.core.filesystem-1.7.200-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.text/3.8.0/org.eclipse.text-3.8.0.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.text/3.8.0/org.eclipse.text-3.8.0-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/platform/org.eclipse.core.commands/3.9.200/org.eclipse.core.commands-3.9.200.jar" sourcepath="M2_REPO/org/eclipse/platform/org.eclipse.core.commands/3.9.200/org.eclipse.core.commands-3.9.200-sources.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/repodriller"/>
 	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/repodriller-2.0.2-SNAPSHOT-jar-with-dependencies.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
