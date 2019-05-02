@@ -8,6 +8,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.internal.core.util.EnclosingMethodAttribute;
 import org.repodriller.domain.Commit;
 import org.repodriller.domain.Modification;
 
@@ -104,6 +105,12 @@ public class MethodModificationASTVisitor extends ASTVisitor {
 			mod.setModsToMethod(modSize);
 			mod.setAdded(this.modification.getAdded());
 			mod.setRemoved(this.modification.getRemoved());
+			
+			if (type == Type.MODIFY_TESTING_METHOD) {
+				String testMethodId = ASTHelper.getUniqueMethodIdentifier(method.resolveBinding());
+				mod.setTestMethodId(testMethodId);
+			}
+			
 			this.results.add(mod);
 		}
 	}
